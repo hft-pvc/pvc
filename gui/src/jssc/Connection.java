@@ -14,72 +14,60 @@ import java.io.InputStream;
 import java.util.Enumeration;
 import java.util.TooManyListenersException;
 
-//import OeffnenUndSenden.serialPortEventListener;
-
-
 
 public class Connection implements Runnable {
 
-	/**
-	 * @param args
-	 */
 	public static void main(String[] args)
 	{
 		Runnable runnable = new Connection(args[0]);
 		new Thread(runnable).start();
 		System.out.println("main finished");
 	}
-	
-	/**
-	 * 
-	 */
 
 	CommPortIdentifier serialPortId;
 	Enumeration enumComm;
 	SerialPort serialPort;
 	//OutputStream outputStream;
 	InputStream inputStream;
-	Boolean serialPortGeoeffnet = false;
+	Boolean serialPortOpen = false;
 
-	int baudrate = 9600;
+	int baudrate = 38400;
 	int dataBits = SerialPort.DATABITS_8;
 	int stopBits = SerialPort.STOPBITS_1;
 	int parity = SerialPort.PARITY_NONE;
 	String portName = "/dev/ttyUSB0";
 	
-	int secondsRuntime = 60;
 
 	public Connection(String port)
 	{
 		this.portName = port;
-		System.out.println("Konstruktor: EinfachSenden");
 	}
-	
-    public void run()
-    {
-        Integer secondsRemaining = secondsRuntime;
-        if (oeffneSerialPort(portName) != true)
-        	return;
-        
-		while (secondsRemaining > 0) {
-			System.out.println("Sekunden verbleiben: " + secondsRemaining.toString() );
-			secondsRemaining--;
+
+	public void run()
+	{
+		if (!openSerialPort(portName))
+			return;
+
+		while (true) {
 			try {
 				Thread.sleep(1000);
-			} catch(InterruptedException e) { }
+			} catch(InterruptedException e) {
+			} finally {
+				if (openSerialPort(portName)) {
+					closeSerialPort();
+				}
+			}
 		}
-		schliesseSerialPort();
-    	
-    }
-    
-	boolean oeffneSerialPort(String portName)
+	}
+
+	boolean openSerialPort(String portName)
 	{
 		Boolean foundPort = false;
-		if (serialPortGeoeffnet != false) {
-			System.out.println("Serialport bereits geöffnet");
+		if (serialPortOpen != false) {
+			System.out.println("Serialport already open");
 			return false;
 		}
-		System.out.println("Öffne Serialport");
+		System.out.println("Open serialport using " + portName);
 		enumComm = CommPortIdentifier.getPortIdentifiers();
 		while(enumComm.hasMoreElements()) {
 			serialPortId = (CommPortIdentifier) enumComm.nextElement();
@@ -89,14 +77,14 @@ public class Connection implements Runnable {
 			}
 		}
 		if (foundPort != true) {
-			System.out.println("Serialport nicht gefunden: " + portName);
+			System.out.println("Serialport not found: " + portName);
 			return false;
 		}
 		try {
 			serialPort = (SerialPort) serialPortId.open("Öffnen und Senden", 500);
 			serialPort.setRTS(false);
 		} catch (PortInUseException e) {
-			System.out.println("Port belegt");
+			System.out.println("Port in use");
 		}
 /*
 		try {
@@ -108,63 +96,81 @@ public class Connection implements Runnable {
 		try {
 			inputStream = serialPort.getInputStream();
 		} catch (IOException e) {
-			System.out.println("Keinen Zugriff auf InputStream");
+			System.out.println("Cannot access InputStream");
 		}
+
 		try {
 			serialPort.addEventListener(new serialPortEventListener());
 		} catch (TooManyListenersException e) {
-			System.out.println("TooManyListenersException für Serialport");
+			System.out.println("TooManyListenersException");
 		}
+
 		serialPort.notifyOnDataAvailable(true);
+
 		try {
 			serialPort.setSerialPortParams(baudrate, dataBits, stopBits, parity);
 		} catch(UnsupportedCommOperationException e) {
-			System.out.println("Konnte Schnittstellen-Paramter nicht setzen");
+			System.out.println("Couldn't set port parameters");
 		}
-		
-		serialPortGeoeffnet = true;
+
+		serialPortOpen = true;
 		return true;
 	}
 
-	void schliesseSerialPort()
+	void closeSerialPort()
 	{
-		if ( serialPortGeoeffnet == true) {
-			System.out.println("Schließe Serialport");
+		if (serialPortOpen) {
+			System.out.println("Closing Serialport");
 			serialPort.close();
-			serialPortGeoeffnet = false;
+			serialPortOpen = false;
 		} else {
-			System.out.println("Serialport bereits geschlossen");
+			System.out.println("Serialport already closed");
 		}
 	}
 	
-	void serialPortDatenVerfuegbar() {
+	void serialPortDataAvailable() {
 		try {
 			byte[] data = new byte[150];
 			int num;
 			while(inputStream.available() > 0) {
 				num = inputStream.read(data, 0, data.length);
-				System.out.println("Empfange: "+ new String(data, 0, num));
+				System.out.println("Receiving: "+ new String(data, 0, num));
 			}
 		} catch (IOException e) {
-			System.out.println("Fehler beim Lesen empfangener Daten");
+			System.out.println("Error while receiving data");
 		}
 	}
 
 	class serialPortEventListener implements SerialPortEventListener {
 		public void serialEvent(SerialPortEvent event) {
-			System.out.println("serialPortEventlistener");
 			switch (event.getEventType()) {
 			case SerialPortEvent.DATA_AVAILABLE:
-				serialPortDatenVerfuegbar();
+				serialPortDataAvailable();
 				break;
 			case SerialPortEvent.BI:
+				System.out.println("Event BI");
+				break;
 			case SerialPortEvent.CD:
+				System.out.println("Event CD");
+				break;
 			case SerialPortEvent.CTS:
+				System.out.println("Event CTS");
+				break;
 			case SerialPortEvent.DSR:
+				System.out.println("Event DSR");
+				break;
 			case SerialPortEvent.FE:
+				System.out.println("Event FE");
+				break;
 			case SerialPortEvent.OUTPUT_BUFFER_EMPTY:
+				System.out.println("Event BUFFER_EMPTY");
+				break;
 			case SerialPortEvent.PE:
+				System.out.println("Event PE");
+				break;
 			case SerialPortEvent.RI:
+				System.out.println("Event RI");
+				break;
 			default:
 			}
 		}
