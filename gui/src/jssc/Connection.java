@@ -31,7 +31,7 @@ public class Connection implements Runnable {
 	InputStream inputStream;
 	Boolean serialPortOpen = false;
 
-	int baudrate = 9600;
+	int baudrate = 38400;
 	int dataBits = SerialPort.DATABITS_8;
 	int stopBits = SerialPort.STOPBITS_1;
 	int parity = SerialPort.PARITY_NONE;
