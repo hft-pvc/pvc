@@ -3,6 +3,7 @@ package swing;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.EventQueue;
 import java.awt.Graphics;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -22,7 +23,7 @@ public class MainWindow {
 	 * Launch the application.
 	 */
 	public static void main(String[] args) {
-/*		EventQueue.invokeLater(new Runnable() {
+		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
 					MainWindow window = new MainWindow();
@@ -31,7 +32,7 @@ public class MainWindow {
 					e.printStackTrace();
 				}
 			}
-		});*/
+		});
 	}
 
 	/**
