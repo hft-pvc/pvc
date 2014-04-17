@@ -1,4 +1,4 @@
-package jssc;
+package rxtx;
 
 
 import gnu.io.CommPortIdentifier;
@@ -76,12 +76,14 @@ public class Connection implements Runnable {
 				break;
 			}
 		}
+
 		if (foundPort != true) {
 			System.out.println("Serialport not found: " + portName);
 			return false;
 		}
+
 		try {
-			serialPort = (SerialPort) serialPortId.open("Öffnen und Senden", 500);
+			serialPort = (SerialPort) serialPortId.open("Open and send", 500);
 			serialPort.setRTS(false);
 		} catch (PortInUseException e) {
 			System.out.println("Port in use");
