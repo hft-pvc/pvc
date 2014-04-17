@@ -33,6 +33,7 @@
 // Includes:
 
 #include "RP6RobotBaseLib.h" 	
+#include <stdio.h>
 
 /*****************************************************************************/
 // Behaviour command type:
@@ -52,16 +53,25 @@ typedef struct {
 	uint8_t  state;       // state of the behaviour
 } behaviour_command_t;
 
+
 behaviour_command_t STOP = {0, 0, FWD, false, false, 0, IDLE};
 
 /*****************************************************************************/
 // Cruise Behaviour:
 
-#define CRUISE_SPEED_FWD    100 //40 // 100 Default speed when no obstacles are detected!
+#define CRUISE_SPEED_FWD    500 //40 // 100 Default speed when no obstacles are detected!
 
 #define MOVE_FORWARDS 1
 behaviour_command_t cruise = {CRUISE_SPEED_FWD, CRUISE_SPEED_FWD, FWD, 
 								false, false, 0, MOVE_FORWARDS};
+
+const char *direction[4] = {"FWD", "BWD", "LEFT", "RIGHT"};
+
+void mywrite(const char *pstring)
+{
+    uint8_t c;
+    for (;(c = *pstring++);writeChar(c));
+}
 
 /**
  * We don't have anything to do here - this behaviour has only
@@ -77,7 +87,7 @@ void behaviour_cruise(void)
 // Escape Behaviour:
 
 #define ESCAPE_SPEED_BWD    100 //40 // 100
-#define ESCAPE_SPEED_ROTATE 60 //30  // 60
+#define ESCAPE_SPEED_ROTATE 100 //30  // 60
 
 #define ESCAPE_FRONT		1
 #define ESCAPE_FRONT_WAIT 	2
@@ -91,6 +101,7 @@ behaviour_command_t escape = {0, 0, FWD, false, false, 0, IDLE};
 /**
  * This is the Escape behaviour for the Bumpers.
  */
+
 void behaviour_escape(void)
 {
 	static uint8_t bump_count = 0;
@@ -193,20 +204,19 @@ void behaviour_escape(void)
 /**
  * Bumpers Event handler
  */
-void bumpersStateChanged(void)
-{
-	if(bumper_left && bumper_right) // Both Bumpers were hit
-	{
+void bumpersStateChanged(void) {
+	if(bumper_left && bumper_right) { // Both Bumpers were hit
+        writeString_P("   ESC: Front\n");
 		escape.state = ESCAPE_FRONT;
 	}
-	else if(bumper_left)  			// Left Bumper was hit
-	{
+	else if(bumper_left) { 			// Left Bumper was hit
 		if(escape.state != ESCAPE_FRONT_WAIT) 
+        writeString_P("   ESC: Left\n");
 			escape.state = ESCAPE_LEFT;
 	}
-	else if(bumper_right) 			// Right Bumper was hit
-	{
+	else if(bumper_right) {			// Right Bumper was hit
 		if(escape.state != ESCAPE_FRONT_WAIT)
+        writeString_P("   ESC: Right\n");
 			escape.state = ESCAPE_RIGHT;
 	}
 }
@@ -215,11 +225,11 @@ void bumpersStateChanged(void)
 // The new Avoid Behaviour:
 
 // Some speed values for different movements:
-#define AVOID_SPEED_L_ARC_LEFT  30
+#define AVOID_SPEED_L_ARC_LEFT  100 //30
 #define AVOID_SPEED_L_ARC_RIGHT 100 //40 // 90
 #define AVOID_SPEED_R_ARC_LEFT  100 //40 // 90
-#define AVOID_SPEED_R_ARC_RIGHT 30
-#define AVOID_SPEED_ROTATE 	60 //30     // 60
+#define AVOID_SPEED_R_ARC_RIGHT 100 //30
+#define AVOID_SPEED_ROTATE 	100 //30     // 60
 
 // States for the Avoid FSM:
 #define AVOID_OBSTACLE_RIGHT 		1
@@ -337,24 +347,27 @@ void acsStateChanged(void)
  * Depending on the values in the behaviour_command_t struct, it sets motor
  * speed, moves a given distance or rotates.
  */
-void moveCommand(behaviour_command_t * cmd)
-{
-	if(cmd->move_value > 0)  // move or rotate?
-	{
-		if(cmd->rotate)
+void moveCommand(behaviour_command_t * cmd) {
+	if(cmd->move_value > 0) {  // move or rotate?
+        char text[55];
+        
+        if(cmd->rotate) {
+            sprintf(text, "rotate: %d speed; %s dir;", cmd->speed_left, direction[cmd->dir]);
+            mywrite(text);
 			rotate(cmd->speed_left, cmd->dir, cmd->move_value, false); 
-		else if(cmd->move)
+        } else if(cmd->move) {
+            sprintf(text, "  move: %d speed; %s dir;", cmd->speed_left, direction[cmd->dir]);
+            mywrite(text);
 			move(cmd->speed_left, cmd->dir, DIST_MM(cmd->move_value), false); 
+        }
 		cmd->move_value = 0; // clear move value - the move commands are only
 		                     // given once and then runs in background.
 	}
-	else if(!(cmd->move || cmd->rotate)) // just move at speed? 
-	{
+	else if(!(cmd->move || cmd->rotate)) { // just move at speed? 
 		changeDirection(cmd->dir);
 		moveAtSpeed(cmd->speed_left,cmd->speed_right);
-	}
-	else if(isMovementComplete()) // movement complete? --> clear flags!
-	{
+	} else if(isMovementComplete()) { // movement complete? --> clear flags!
+        writeString_P(" -> movement complete\n");
 		cmd->rotate = false;
 		cmd->move = false;
 	}
@@ -364,8 +377,7 @@ void moveCommand(behaviour_command_t * cmd)
  * The behaviourController task controls the subsumption architechture. 
  * It implements the priority levels of the different behaviours. 
  */
-void behaviourController(void)
-{
+void behaviourController(void) {
     // Call all the behaviour tasks:
 	behaviour_cruise();
 	behaviour_avoid();
@@ -387,8 +399,7 @@ void behaviourController(void)
 /*****************************************************************************/
 // Main:
 
-int main(void)
-{
+int main(void) {
 	initRobotBase(); 
 
     writeString_P("\n\n             __.---.___\n");
@@ -414,8 +425,7 @@ int main(void)
 	setACSPwrMed(); 
 	
 	// Main loop
-	while(true) 
-	{		
+	while(true) {		
 		behaviourController();
 		task_RP6System();
 	}
