@@ -9,3 +9,4 @@
 *.sym
 *.hex
 *.o
+*.dep

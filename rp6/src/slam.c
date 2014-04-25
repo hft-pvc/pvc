@@ -253,7 +253,7 @@ behaviour_command_t avoid = {0, 0, FWD, false, false, 0, IDLE};
  */
 void behaviour_avoid(void)
 {
-	static uint8_t last_obstacle = LEFT;
+//  static uint8_t last_obstacle = LEFT;
 	static uint8_t obstacle_counter = 0;
 	switch(avoid.state)
 	{
@@ -269,9 +269,9 @@ void behaviour_avoid(void)
 				avoid.state = AVOID_OBSTACLE_RIGHT;
 		break;
 		case AVOID_OBSTACLE_MIDDLE:
-			avoid.dir = last_obstacle;
-			avoid.speed_left = AVOID_SPEED_ROTATE;
-			avoid.speed_right = AVOID_SPEED_ROTATE;
+			avoid.dir = FWD;
+            avoid.rotate = 0;
+            avoid.speed_left = 50;
 			if(!(obstacle_left || obstacle_right))
 			{
 				if(obstacle_counter > 3)
@@ -287,8 +287,8 @@ void behaviour_avoid(void)
 		break;
 		case AVOID_OBSTACLE_RIGHT:
 			avoid.dir = FWD;
-			avoid.speed_left = AVOID_SPEED_L_ARC_LEFT;
-			avoid.speed_right = AVOID_SPEED_L_ARC_RIGHT;
+            avoid.rotate = 0;
+            avoid.speed_left = 50;
 			if(obstacle_right && obstacle_left)
 				avoid.state = AVOID_OBSTACLE_MIDDLE;
 			if(!obstacle_right)
@@ -297,13 +297,12 @@ void behaviour_avoid(void)
 				startStopwatch4();
 				avoid.state = AVOID_END;
 			}
-			last_obstacle = RIGHT;
 			obstacle_counter++;
 		break;
 		case AVOID_OBSTACLE_LEFT:
 			avoid.dir = FWD;
-			avoid.speed_left = AVOID_SPEED_R_ARC_LEFT;
-			avoid.speed_right = AVOID_SPEED_R_ARC_RIGHT;
+            avoid.rotate = 0;
+            avoid.speed_left = 50;
 			if(obstacle_right && obstacle_left)
 				avoid.state = AVOID_OBSTACLE_MIDDLE;
 			if(!obstacle_left)
@@ -312,7 +311,6 @@ void behaviour_avoid(void)
 				startStopwatch4();
 				avoid.state = AVOID_END;
 			}
-			last_obstacle = LEFT;
 			obstacle_counter++;
 		break;
 		case AVOID_END:
