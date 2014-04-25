@@ -133,14 +133,14 @@ void behaviour_escape(void)
 				escape.speed_left = ESCAPE_SPEED_ROTATE;
 				if(bump_count > 3)
 				{
-					escape.move_value = 100;
+					escape.move_value = 45; //100;
 					escape.dir = RIGHT;
 					bump_count = 0;
 				}
 				else 
 				{
 					escape.dir = LEFT;
-					escape.move_value = 70;
+					escape.move_value = 20; //70;
 				}
 				escape.rotate = true;
 				escape.state = ESCAPE_WAIT_END;
@@ -165,11 +165,11 @@ void behaviour_escape(void)
 				escape.rotate = true;
 				if(bump_count > 3)
 				{
-					escape.move_value = 110;
+					escape.move_value = 60; //110;
 					bump_count = 0;
 				}
 				else
-					escape.move_value = 80;
+					escape.move_value = 20; //80;
 				escape.state = ESCAPE_WAIT_END;
 			}
 		break;
@@ -192,11 +192,11 @@ void behaviour_escape(void)
 				escape.rotate = true;
 				if(bump_count > 3)
 				{
-					escape.move_value = 110;
+					escape.move_value = 60; //110;
 					bump_count = 0;
 				}
 				else
-					escape.move_value = 80;
+					escape.move_value = 45; //80;
 				escape.state = ESCAPE_WAIT_END;
 			}
 		break;
@@ -388,7 +388,7 @@ void moveCommand(behaviour_command_t * cmd) {
 void behaviourController(void) {
     // Call all the behaviour tasks:
 	behaviour_cruise();
-	behaviour_avoid();
+	//behaviour_avoid();
 	behaviour_escape();
 
     // Execute the commands depending on priority levels:
