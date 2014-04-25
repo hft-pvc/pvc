@@ -67,10 +67,16 @@ behaviour_command_t cruise = {CRUISE_SPEED_FWD, CRUISE_SPEED_FWD, FWD,
 
 const char *direction[4] = {"FWD", "BWD", "LEFT", "RIGHT"};
 
-void mywrite(const char *pstring)
+int lastState = 0;
+
+void mywrite(const char *pstring, int state)
 {
-    uint8_t c;
-    for (;(c = *pstring++);writeChar(c));
+    if (state != lastState)
+    {
+        lastState = state;
+        uint8_t c;
+        for (;(c = *pstring++);writeChar(c));
+    }
 }
 
 /**
@@ -206,17 +212,17 @@ void behaviour_escape(void)
  */
 void bumpersStateChanged(void) {
 	if(bumper_left && bumper_right) { // Both Bumpers were hit
-        writeString_P("   ESC: Front\n");
-		escape.state = ESCAPE_FRONT;
+        mywrite("   ESC: Front\n", 5);
+        escape.state = ESCAPE_FRONT;
 	}
 	else if(bumper_left) { 			// Left Bumper was hit
 		if(escape.state != ESCAPE_FRONT_WAIT) 
-        writeString_P("   ESC: Left\n");
+            mywrite("   ESC: Left\n", 6);
 			escape.state = ESCAPE_LEFT;
 	}
 	else if(bumper_right) {			// Right Bumper was hit
 		if(escape.state != ESCAPE_FRONT_WAIT)
-        writeString_P("   ESC: Right\n");
+            mywrite("   ESC: Right\n", 7);
 			escape.state = ESCAPE_RIGHT;
 	}
 }
@@ -348,26 +354,28 @@ void acsStateChanged(void)
  * speed, moves a given distance or rotates.
  */
 void moveCommand(behaviour_command_t * cmd) {
+    char text[55];
 	if(cmd->move_value > 0) {  // move or rotate?
-        char text[55];
         
         if(cmd->rotate) {
             sprintf(text, "rotate: %d speed; %s dir;", cmd->speed_left, direction[cmd->dir]);
-            mywrite(text);
+            mywrite(text, cmd->speed_left+cmd->speed_right+cmd->dir+1);
 			rotate(cmd->speed_left, cmd->dir, cmd->move_value, false); 
         } else if(cmd->move) {
             sprintf(text, "  move: %d speed; %s dir;", cmd->speed_left, direction[cmd->dir]);
-            mywrite(text);
+            mywrite(text, cmd->speed_left+cmd->speed_right+cmd->dir+2);
 			move(cmd->speed_left, cmd->dir, DIST_MM(cmd->move_value), false); 
         }
 		cmd->move_value = 0; // clear move value - the move commands are only
 		                     // given once and then runs in background.
 	}
 	else if(!(cmd->move || cmd->rotate)) { // just move at speed? 
+        sprintf(text, "  move: %d speed-left; %d speed-right; %s dir\n", cmd->speed_left, cmd->speed_right, direction[cmd->dir]);
+        mywrite(text, cmd->speed_left+cmd->speed_right+cmd->dir+3);
 		changeDirection(cmd->dir);
 		moveAtSpeed(cmd->speed_left,cmd->speed_right);
 	} else if(isMovementComplete()) { // movement complete? --> clear flags!
-        writeString_P(" -> movement complete\n");
+        mywrite(" -> movement complete\n", 4);
 		cmd->rotate = false;
 		cmd->move = false;
 	}
