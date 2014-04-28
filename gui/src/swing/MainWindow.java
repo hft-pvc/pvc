@@ -1,20 +1,26 @@
 package swing;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.EventQueue;
-import java.awt.Graphics;
 import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.io.PrintStream;
 
-import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JPanel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.ScrollPaneConstants;
 
-
+import net.miginfocom.swing.MigLayout;
+/**
+*
+* 
+* @author Tobias Fleischer
+* 
+*/
 public class MainWindow {
 
 	private JFrame frame;
@@ -22,11 +28,14 @@ public class MainWindow {
 	/**
 	 * Launch the application.
 	 */
+	Dimension screen ;
 	public static void main(String[] args) {
+		
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
 					MainWindow window = new MainWindow();
+					
 					window.frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -43,63 +52,78 @@ public class MainWindow {
 	}
 
 	/**
-	 * Initialize the contents of the frame.
+	 * Initialize the contents of the frame
 	 */
 	private void initialize() {
+		Dimension min = new Dimension(500, 970);
 		frame = new JFrame();
-		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-		frame.setBounds(0, 0, screenSize.width, screenSize.height);
+		frame.getContentPane().setBackground(Color.BLACK);
+		frame.setMinimumSize(min);
+		frame.getContentPane().setEnabled(false);
+		frame.setBounds(100, 100, 450, 300);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setTitle("PVC Projekt: SLAM by Juhulian Rilli, Tobias Fleischer, Jan Hoeppner, Felix Van Gunsteren");
+		frame.getContentPane().setLayout(new MigLayout("", "[grow][grow][]", "[grow][grow]"));
 		
-		JPanel map = new JPanel() {
-			@Override
-			public void paintComponent(Graphics g) {
-				super.paintComponent(g);
-				g.setColor(Color.BLACK);
-				g.drawLine(0, 0, 100, 100);
-			}
-		};
-		map.setForeground(Color.ORANGE);
-		map.setBackground(Color.WHITE);
-		frame.getContentPane().add(map, BorderLayout.CENTER);
-		
-		JPanel info_panel = new JPanel();
-		info_panel.setSize(100, 150);
-		frame.getContentPane().add(info_panel, BorderLayout.SOUTH);
-		info_panel.setLayout(new BorderLayout(0, 0));
-		
-		JPanel console = new JPanel();
-		info_panel.add(console, BorderLayout.WEST);
-		console.setBackground(Color.BLACK);
-		console.setLayout(new BorderLayout(0, 0));
-		
-		JTextArea textArea = new JTextArea();
-		textArea.setBackground(Color.BLACK);
-		textArea.setForeground(Color.WHITE);
-		textArea.setPreferredSize(new Dimension(screenSize.width / 2, screenSize.height / 4));
-		textArea.setEditable(false);
-		textArea.setText("adsldjfladf\n pjdlfjsadfl");
-		console.add(textArea);
+		/**
+		 * MapArea
+		 */
+		Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
+		Dimension sizeConsol = new Dimension(screen.width,screen.height);
+		Draw drawMap = new Draw();
+		drawMap.setBackground(Color.WHITE);
+		//"cell 0 0 2 1,grow"
+		JScrollPane scrollPane = new JScrollPane(drawMap);
+		scrollPane.setEnabled(false);
+		frame.getContentPane().add(scrollPane, " hmin 750px,cell 0 0 3 1,push,grow");
+		frame.setVisible(true);
 		
 		
+		/**
+		 * ConsolArea
+		 */
+		JTextArea consolTextArea = new JTextArea();
+		PrintStream standardOut = System.out;
+		PrintStream errOut = System.err;
+		PrintStream printStream = new PrintStream(new CustomOutputStream(consolTextArea));
+		standardOut = System.out;
+		System.setOut(printStream);
+		System.setErr(printStream);
+		
+		//consolTextArea.setBackground(Color.BLACK);
+		JScrollPane scrollPaneConsol = new JScrollPane (consolTextArea, 
+	            ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+	            ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		frame.getContentPane().add(scrollPaneConsol, "hmax 300px ,cell 0 1 2 1, push ,grow");
+		Dimension size = new Dimension(10,10);
+		
+			
+			
+		
+		/**
+		 * ControlArea
+		 */
+		Control control = new Control();
+		control.setBackground(Color.BLACK);
+		//control.setBackground(UIManager.getColor("Button.background"));
+		frame.getContentPane().add(control, "wmax 130px,hmax 200px,  cell 2 1");
 		
 		
-		JPanel control = new JPanel();
-		info_panel.add(control, BorderLayout.EAST);
 		
-		JButton left = new JButton("LEFT");
+		/**
+		 * MenuBar
+		 */
+		JMenuBar menuBar = new JMenuBar();
+		frame.setJMenuBar(menuBar);
 		
-		JButton right = new JButton("RIGHT");
-		right.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-			}
-		});
+		JMenu mnNewMenu = new JMenu("Connect");
+		menuBar.add(mnNewMenu);
 		
-		JButton up = new JButton("UP");
+		JMenuItem mntmNew = new JMenuItem("New Connection");
+		mnNewMenu.add(mntmNew);
 		
-		JButton down = new JButton("DOWN");
-
-		
+		JMenuItem mntmClos = new JMenuItem("Close Connection");
+		mnNewMenu.add(mntmClos);
 	}
 
 }
