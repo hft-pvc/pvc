@@ -272,6 +272,7 @@ void behaviour_avoid(void)
 			avoid.dir = FWD;
             avoid.rotate = 0;
             avoid.speed_left = 50;
+            avoid.speed_right = 50;
 			if(!(obstacle_left || obstacle_right))
 			{
 				if(obstacle_counter > 3)
@@ -289,6 +290,7 @@ void behaviour_avoid(void)
 			avoid.dir = FWD;
             avoid.rotate = 0;
             avoid.speed_left = 50;
+            avoid.speed_right = 50;
 			if(obstacle_right && obstacle_left)
 				avoid.state = AVOID_OBSTACLE_MIDDLE;
 			if(!obstacle_right)
@@ -303,6 +305,7 @@ void behaviour_avoid(void)
 			avoid.dir = FWD;
             avoid.rotate = 0;
             avoid.speed_left = 50;
+            avoid.speed_right = 50;
 			if(obstacle_right && obstacle_left)
 				avoid.state = AVOID_OBSTACLE_MIDDLE;
 			if(!obstacle_left)
@@ -386,7 +389,7 @@ void moveCommand(behaviour_command_t * cmd) {
 void behaviourController(void) {
     // Call all the behaviour tasks:
 	behaviour_cruise();
-	//behaviour_avoid();
+    behaviour_avoid();
 	behaviour_escape();
 
     // Execute the commands depending on priority levels:
