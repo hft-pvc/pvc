@@ -1,6 +1,4 @@
 *.un~
-.classpath
-.project
 */bin
 *.elf
 *.lss
