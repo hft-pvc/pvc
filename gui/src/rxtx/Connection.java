@@ -32,6 +32,7 @@ public class Connection implements Runnable {
 	//OutputStream outputStream;
 	InputStream inputStream;
 	Boolean serialPortOpen = false;
+	PrintStream ps;
 
 	int baudrate = 38400;
 	int dataBits = SerialPort.DATABITS_8;
@@ -43,6 +44,14 @@ public class Connection implements Runnable {
 	public Connection(String port)
 	{
 		this.portName = port;
+	}
+
+	public Connection(String port, PrintStream ps)
+	{
+		this.portName = port;
+		this.ps = ps;
+		System.setOut(ps);
+		System.setErr(ps);
 	}
 
 	public void run()

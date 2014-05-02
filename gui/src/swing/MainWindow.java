@@ -15,8 +15,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.ScrollPaneConstants;
 
-import rxtx.Connection;
 import net.miginfocom.swing.MigLayout;
+import rxtx.Connection;
 /**
 *
 * 
@@ -61,7 +61,7 @@ public class MainWindow {
 	 * @throws IOException 
 	 */
 	private void initialize() throws IOException {
-		Dimension min = new Dimension(500, 970);
+		Dimension min = new Dimension(950, 700);
 		frame = new JFrame();
 		frame.getContentPane().setBackground(Color.BLACK);
 		frame.setMinimumSize(min);
@@ -75,38 +75,35 @@ public class MainWindow {
 		 * MapArea
 		 */
 		Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
-		Dimension sizeConsol = new Dimension(screen.width,screen.height);
+		Dimension sizeConsole = new Dimension(screen.width,screen.height);
 		Draw drawMap = new Draw();
 		drawMap.setBackground(Color.WHITE);
 		//"cell 0 0 2 1,grow"
-		JScrollPane scrollPane = new JScrollPane(drawMap);
-		scrollPane.setEnabled(false);
-		frame.getContentPane().add(scrollPane, " hmin 750px,cell 0 0 3 1,push,grow");
+		JScrollPane scrollPaneDraw = new JScrollPane(drawMap, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+														  ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		frame.getContentPane().add(scrollPaneDraw, "hmin 500px,cell 0 0 3 1,push,grow");
 		frame.setVisible(true);
-		
-		
+
+/*		PrintStream standardOut = System.out;
+		PrintStream errOut = System.err;*/
+
 		/**
 		 * ConsolArea
 		 */
 		JTextArea consolTextArea = new JTextArea();
-		PrintStream standardOut = System.out;
-		PrintStream errOut = System.err;
 		PrintStream printStream = new PrintStream(new CustomOutputStream(consolTextArea));
-		standardOut = System.out;
 		System.setOut(printStream);
 		System.setErr(printStream);
-		Runnable runnable = new Connection(printStream);
+
+		Runnable runnable = new Connection("/dev/ttyUSB0", printStream);
 		
 		//consolTextArea.setBackground(Color.BLACK);
-		JScrollPane scrollPaneConsol = new JScrollPane (consolTextArea, 
+		JScrollPane scrollPaneConsole = new JScrollPane (consolTextArea,
 	            ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
 	            ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-		frame.getContentPane().add(scrollPaneConsol, "hmax 300px ,cell 0 1 2 1, push ,grow");
-		Dimension size = new Dimension(10,10);
-		
-			
-			
-		
+		frame.getContentPane().add(scrollPaneConsole, "hmax 300px ,cell 0 1 2 1, push ,grow");
+
+
 		/**
 		 * ControlArea
 		 */
@@ -114,9 +111,8 @@ public class MainWindow {
 		control.setBackground(Color.BLACK);
 		//control.setBackground(UIManager.getColor("Button.background"));
 		frame.getContentPane().add(control, "wmax 130px,hmax 200px,  cell 2 1");
-		
-		
-		
+
+
 		/**
 		 * MenuBar
 		 */
