@@ -1,8 +1,13 @@
 package swing;
 
+import java.awt.Image;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 
+import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -15,30 +20,38 @@ import net.miginfocom.swing.MigLayout;
 * 
 */
 public class Control extends JPanel implements MouseListener{
-	Control(){
+	Control() throws IOException{
 	this.setLayout(new MigLayout("", "[44px][24px][][44px][][24px][][][][grow][]", "[44px][][][grow]"));
 	
 	JLabel up = new JLabel();
 	up.setName("up");
-	up.setIcon(new ImageIcon("F:\\Programmieren\\PVC\\UP.png"));
+	InputStream is = getClass().getResourceAsStream("images/up.png");
+	Image image = ImageIO.read(is);
+	up.setIcon(new ImageIcon(image));
 	up.addMouseListener(this);
 	this.add(up, "cell 1 0,alignx left,aligny top");
 	
 	JLabel left = new JLabel("");
 	left.setName("left");
-	left.setIcon(new ImageIcon("F:\\Programmieren\\PVC\\left.png"));
+	is = getClass().getResourceAsStream("images/left.png");
+	image = ImageIO.read(is);
+	left.setIcon(new ImageIcon(image));
 	left.addMouseListener(this);
 	this.add(left, "cell 0 1,alignx left,aligny center");
 	
 	JLabel right = new JLabel("");
 	right.setName("right");
-	right.setIcon(new ImageIcon("F:\\Programmieren\\PVC\\right.png"));
+	is = getClass().getResourceAsStream("images/right.png");
+	image = ImageIO.read(is);
+	right.setIcon(new ImageIcon(image));
 	right.addMouseListener(this);
 	this.add(right, "cell 2 1,alignx left,aligny center");
 	
 	JLabel down = new JLabel("");
 	down.setName("down");
-	down.setIcon(new ImageIcon("F:\\Programmieren\\PVC\\down.png"));
+	is = getClass().getResourceAsStream("images/down.png");
+	image = ImageIO.read(is);
+	down.setIcon(new ImageIcon(image));
 	down.addMouseListener(this);
 	this.add(down, "cell 1 2,alignx left,aligny top");
 	}

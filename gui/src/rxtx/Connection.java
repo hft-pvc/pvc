@@ -10,6 +10,7 @@ import gnu.io.UnsupportedCommOperationException;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintStream;
 //import java.io.OutputStream;
 import java.util.Enumeration;
 import java.util.TooManyListenersException;
@@ -17,11 +18,12 @@ import java.util.TooManyListenersException;
 
 public class Connection implements Runnable {
 
-	public static void main(String[] args)
-	{
-		Runnable runnable = new Connection(args[0]);
-		new Thread(runnable).start();
-		System.out.println("main finished");
+	public Connection(PrintStream printStream){
+		
+		new Thread(this).start();
+		System.setOut(printStream);
+		System.setErr(printStream);
+		System.out.println("init Connection finished");
 	}
 
 	CommPortIdentifier serialPortId;

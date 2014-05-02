@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Toolkit;
+import java.io.IOException;
 import java.io.PrintStream;
 
 import javax.swing.JFrame;
@@ -14,6 +15,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.ScrollPaneConstants;
 
+import rxtx.Connection;
 import net.miginfocom.swing.MigLayout;
 /**
 *
@@ -42,19 +44,23 @@ public class MainWindow {
 				}
 			}
 		});
+		
+		
 	}
 
 	/**
 	 * Create the application.
+	 * @throws IOException 
 	 */
-	public MainWindow() {
+	public MainWindow() throws IOException {
 		initialize();
 	}
 
 	/**
 	 * Initialize the contents of the frame
+	 * @throws IOException 
 	 */
-	private void initialize() {
+	private void initialize() throws IOException {
 		Dimension min = new Dimension(500, 970);
 		frame = new JFrame();
 		frame.getContentPane().setBackground(Color.BLACK);
@@ -89,6 +95,7 @@ public class MainWindow {
 		standardOut = System.out;
 		System.setOut(printStream);
 		System.setErr(printStream);
+		Runnable runnable = new Connection(printStream);
 		
 		//consolTextArea.setBackground(Color.BLACK);
 		JScrollPane scrollPaneConsol = new JScrollPane (consolTextArea, 
