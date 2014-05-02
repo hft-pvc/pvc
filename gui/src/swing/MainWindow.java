@@ -110,7 +110,7 @@ public class MainWindow {
 		Control control = new Control();
 		control.setBackground(Color.BLACK);
 		//control.setBackground(UIManager.getColor("Button.background"));
-		frame.getContentPane().add(control, "wmax 130px,hmax 200px,  cell 2 1");
+		frame.getContentPane().add(control, "wmax 200px,hmax 200px,  cell 2 1");
 
 
 		/**

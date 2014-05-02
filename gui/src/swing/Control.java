@@ -9,6 +9,7 @@ import java.io.InputStream;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
@@ -29,7 +30,7 @@ public class Control extends JPanel implements MouseListener{
 	Image image = ImageIO.read(is);
 	up.setIcon(new ImageIcon(image));
 	up.addMouseListener(this);
-	this.add(up, "cell 1 0,alignx left,aligny top");
+	this.add(up, "cell 2 0,alignx left,aligny top");
 	
 	JLabel left = new JLabel("");
 	left.setName("left");
@@ -37,7 +38,7 @@ public class Control extends JPanel implements MouseListener{
 	image = ImageIO.read(is);
 	left.setIcon(new ImageIcon(image));
 	left.addMouseListener(this);
-	this.add(left, "cell 0 1,alignx left,aligny center");
+	this.add(left, "cell 1 1,alignx left,aligny center");
 	
 	JLabel right = new JLabel("");
 	right.setName("right");
@@ -45,7 +46,7 @@ public class Control extends JPanel implements MouseListener{
 	image = ImageIO.read(is);
 	right.setIcon(new ImageIcon(image));
 	right.addMouseListener(this);
-	this.add(right, "cell 2 1,alignx left,aligny center");
+	this.add(right, "cell 3 1,alignx left,aligny center");
 	
 	JLabel down = new JLabel("");
 	down.setName("down");
@@ -53,9 +54,19 @@ public class Control extends JPanel implements MouseListener{
 	image = ImageIO.read(is);
 	down.setIcon(new ImageIcon(image));
 	down.addMouseListener(this);
-	this.add(down, "cell 1 2,alignx left,aligny top");
+	this.add(down, "cell 2 2,alignx left,aligny top");
+	
+	JButton stop = new JButton();
+	stop.setName("stop");
+	stop.setText(" stop");
+	this.add(stop, "cell 0 1,alignx left,aligny top");
+	
+	JButton toggle = new JButton();
+	toggle.setName("toggle");
+	toggle.setText("toggle");
+	this.add(toggle, "cell 0 2,alignx left,aligny top");
 	}
-
+	
 	@Override
 	public void mouseClicked(MouseEvent e) {
 		// TODO Auto-generated method stub
@@ -76,6 +87,7 @@ public class Control extends JPanel implements MouseListener{
 
 	@Override
 	public void mousePressed(MouseEvent e) {
+		
 		if(e.getComponent().getName().endsWith("up")){
 			System.err.println("up");
 		}else if(e.getComponent().getName().endsWith("left")){
