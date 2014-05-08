@@ -65,7 +65,15 @@ public class Connection implements Runnable {
 			} catch(InterruptedException e) {
 			} finally {
 				if (openSerialPort(portName)) {
+					System.out.println("going to sleep");
+					try {
+						Thread.sleep(10000);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 					closeSerialPort();
+					break;
 				}
 			}
 		}

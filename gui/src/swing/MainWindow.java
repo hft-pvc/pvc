@@ -95,7 +95,7 @@ public class MainWindow {
 		System.setOut(printStream);
 		System.setErr(printStream);
 
-		Runnable runnable = new Connection("/dev/ttyUSB0", printStream);
+		(new Thread(new Connection("/dev/rfcomm0", printStream))).start();
 		
 		//consolTextArea.setBackground(Color.BLACK);
 		JScrollPane scrollPaneConsole = new JScrollPane (consolTextArea,
