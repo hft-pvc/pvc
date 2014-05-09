@@ -87,6 +87,27 @@ void mywrite(const char *pstring, int state)
  */
 void behaviour_cruise(void)
 {
+    
+    uint8_t length = getBufferLength();
+    if (length > 0){
+//         readChars(char *buf, uint8_t numberOfChars);
+        char buf[length+1];
+        readChars(buf, length);
+        char text[length+55];
+        sprintf(text, "data read: %s; length: %d", buf, length);
+        mywrite(text, 42);
+        if (buf[0] == 's') {
+			STOP.dir = FWD;
+            STOP.rotate = 0;
+            STOP.speed_left = 0;
+            STOP.speed_right = 0;
+			STOP.move = false;
+            moveCommand(&STOP);
+            writeString_P("STOP\n");
+        } else {
+            writeString_P("\n->fu\n");
+        }
+    }
 }
 
 /*****************************************************************************/
