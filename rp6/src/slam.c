@@ -1,5 +1,19 @@
 #include "RP6RobotBaseLib.h"
 
+
+// The behaviour command data type:
+typedef struct {
+	uint8_t  speed_left;  // left speed (is used for rotation and 
+						  // move distance commands - if these commands are 
+						  // active, speed_right is ignored!)
+	uint8_t  speed_right; // right speed
+	unsigned dir:2;       // direction (FWD, BWD, LEFT, RIGHT)
+	unsigned move:1;      // move flag
+	unsigned rotate:1;    // rotate flag
+	uint16_t move_value;  // move value is used for distance and angle values
+	uint8_t  state;       // state of the behaviour
+} behaviour_command_t;
+
 void acsStateChanged(void)
 {
     writeString_P("ACS status hat sich geändert!   L: ");
@@ -37,10 +51,46 @@ void bumpersStateChanged(void)
         writeString_P(" - Rechter Bumper nicht gedrueckt.\n");
 }
 
-void task_UART(void)
+void run(void)
 {
-    uint8_t charsToReceive = 1;
+    if(getBufferLength())
+    {
+        uint8_t a = readChar();
+        if(a == 10)
+            return;
+        writeString_P(" -> ");
+        writeInteger(a, DEC);
+        writeString_P("\n");
 
+        a -= 48;
+        if(a>9)
+            return;
+        switch(a)
+        {
+            case 0:
+                writeString_P("IDLE\n");
+                break;
+            case 1:
+                writeString_P("STOP\n");
+                break;
+            case 2:
+                writeString_P("FWD\n");
+                break;
+            case 3:
+                writeString_P("BWD\n");
+                break;
+            case 4:
+                writeString_P("LEFT\n");
+                break;
+            case 5:
+                writeString_P("RIGHT\n");
+                break;
+
+
+        }
+    }
+/*
+    // clear receive buffer
     char receiveBuffer[charsToReceive+1];
     clearReceptionBuffer();
     uint8_t cnt;
@@ -50,12 +100,12 @@ void task_UART(void)
     uint8_t buffer_pos = 0;
     while(true)
     {
-        if(getBufferLength()) {
+        while(getBufferLength()) {
             receiveBuffer[buffer_pos] = readChar(); // get next character from reception buffer
             if(receiveBuffer[buffer_pos]=='\n') // End of line detected!
             {
                 receiveBuffer[buffer_pos]='\0'; // Terminate String with a 0, so other routines.
-                buffer_pos = 0;                 // can determine where it ends!
+    //            buffer_pos = 0;                 // can determine where it ends!
                                                 // We also overwrite the Newline character here.
                 break; // We are done and can leave reception loop!
             }
@@ -68,25 +118,28 @@ void task_UART(void)
                 break; // We are done and can leave reception loop!
             }
             buffer_pos++;
-        }
-        task_Bumpers(); // ständig Bumper auslesen
-        task_ACS(); // ständig ACS auslesen (Anti Collision System)
-    }
-    //if(buffer_pos > 0)
-    {
-        writeChar('\n');
-        for(cnt = 0; cnt < charsToReceive; cnt++) {
-            writeInteger(receiveBuffer[cnt],DEC);
-            writeChar(',');
-        }
-        writeInteger(receiveBuffer[charsToReceive],DEC);
-        writeString_P("\n");
 
-        writeString_P("-> \"");
-        writeString(receiveBuffer); // Output the received data as a String
-        writeString_P("\" !\n");
+        }
+        if(buffer_pos)
+        {
+            writeChar('\n');
+            for(cnt = 0; cnt < charsToReceive; cnt++) {
+                writeInteger(receiveBuffer[cnt],DEC);
+                writeChar(',');
+            }
+            writeInteger(receiveBuffer[charsToReceive],DEC);
+            writeString_P("\n");
 
+            writeString_P("-> \"");
+            writeString(receiveBuffer); // Output the received data as a String
+            writeString_P("\" !\n");
+
+            writeInteger(uart_status, DEC)
+
+            buffer_pos = 0;
+        }
     }
+*/
 }
 
 int main(void)
@@ -116,9 +169,11 @@ int main(void)
     setACSPwrMed(); // ACS auf mittlere Sendeleistung stellen.
     //setACSPwrHigh();
 
-    while(true) 
+    while(true)
     {
-        task_UART(); // (Universal Asynchronous Receiver/Transmitter)
+        run();
+        task_Bumpers(); // ständig Bumper auslesen
+        task_ACS(); // ständig ACS auslesen (Anti Collision System)
     }
     return 0;
 }
