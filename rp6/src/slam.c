@@ -48,44 +48,44 @@ void task_UART(void)
         receiveBuffer[cnt] = 0;
     }
     uint8_t buffer_pos = 0;
-    if(getBufferLength()) {
-        while(true)
-        {
-            if(getBufferLength()) {
-                receiveBuffer[buffer_pos] = readChar(); // get next character from reception buffer
-                if(receiveBuffer[buffer_pos]=='\n') // End of line detected!
-                {
-                    receiveBuffer[buffer_pos]='\0'; // Terminate String with a 0, so other routines.
-                    buffer_pos = 0;                 // can determine where it ends!
-                                                    // We also overwrite the Newline character here.
-                    break; // We are done and can leave reception loop!
-                }
-                else if(buffer_pos >= charsToReceive) // IMPORTANT: We can not receive more
-                {                                     // characters than "charsToReceive" because
-                                                      // our buffer wouldn't be large enough!
-                    receiveBuffer[charsToReceive]='\0'; // So if we receive more characters, we just
-                                                     // stop reception and terminate the String.
-                    writeString_P("\n\nYou entered more characters than possible!\n");
-                    break; // We are done and can leave reception loop!
-                }
-                buffer_pos++;
+    while(true)
+    {
+        if(getBufferLength()) {
+            receiveBuffer[buffer_pos] = readChar(); // get next character from reception buffer
+            if(receiveBuffer[buffer_pos]=='\n') // End of line detected!
+            {
+                receiveBuffer[buffer_pos]='\0'; // Terminate String with a 0, so other routines.
+                buffer_pos = 0;                 // can determine where it ends!
+                                                // We also overwrite the Newline character here.
+                break; // We are done and can leave reception loop!
             }
-        }
-//        if(buffer_pos > 0)
-        {
-            writeChar('\n');
-            for(cnt = 0; cnt < charsToReceive; cnt++) {
-                writeInteger(receiveBuffer[cnt],DEC);
-                writeChar(',');
+            else if(buffer_pos >= charsToReceive) // IMPORTANT: We can not receive more
+            {                                     // characters than "charsToReceive" because
+                                                  // our buffer wouldn't be large enough!
+                receiveBuffer[charsToReceive]='\0'; // So if we receive more characters, we just
+                                                 // stop reception and terminate the String.
+                writeString_P("\n\nYou entered more characters than possible!\n");
+                break; // We are done and can leave reception loop!
             }
-            writeInteger(receiveBuffer[charsToReceive],DEC);
-            writeString_P("\n");
-
-            writeString_P("-> \"");
-            writeString(receiveBuffer); // Output the received data as a String
-            writeString_P("\" !\n");
-
+            buffer_pos++;
         }
+        task_Bumpers(); // ständig Bumper auslesen
+        task_ACS(); // ständig ACS auslesen (Anti Collision System)
+    }
+    //if(buffer_pos > 0)
+    {
+        writeChar('\n');
+        for(cnt = 0; cnt < charsToReceive; cnt++) {
+            writeInteger(receiveBuffer[cnt],DEC);
+            writeChar(',');
+        }
+        writeInteger(receiveBuffer[charsToReceive],DEC);
+        writeString_P("\n");
+
+        writeString_P("-> \"");
+        writeString(receiveBuffer); // Output the received data as a String
+        writeString_P("\" !\n");
+
     }
 }
 
@@ -119,8 +119,6 @@ int main(void)
     while(true) 
     {
         task_UART(); // (Universal Asynchronous Receiver/Transmitter)
-        task_Bumpers(); // ständig Bumper auslesen
-        task_ACS(); // ständig ACS auslesen (Anti Collision System)
     }
     return 0;
 }
