@@ -13,6 +13,7 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import rxtx.Connection;
 import net.miginfocom.swing.MigLayout;
 /**
 *
@@ -21,7 +22,9 @@ import net.miginfocom.swing.MigLayout;
 * 
 */
 public class Control extends JPanel implements MouseListener{
-	Control() throws IOException{
+	Connection connect;
+	Control(Connection connect) throws IOException{
+		this.connect = connect;
 	this.setLayout(new MigLayout("", "[44px][24px][][44px][][24px][][][][grow][]", "[44px][][][grow]"));
 	
 	JLabel up = new JLabel();
@@ -89,13 +92,17 @@ public class Control extends JPanel implements MouseListener{
 	public void mousePressed(MouseEvent e) {
 		
 		if(e.getComponent().getName().endsWith("up")){
-			System.err.println("up");
+			System.err.println("RP6 drive forward!");
+			connect.writeData("2");
 		}else if(e.getComponent().getName().endsWith("left")){
-			System.err.println("left");
+			System.err.println("RP6 drive left!");
+			connect.writeData("4");
 		}else if(e.getComponent().getName().endsWith("right")){
-			System.err.println("right");
+			System.err.println("RP6 drive right!");
+			connect.writeData("5");
 		}else if(e.getComponent().getName().endsWith("down")){
-			System.err.println("down");
+			System.err.println("RP6 drive backwards!");
+			connect.writeData("3");
 		}
 		
 	}

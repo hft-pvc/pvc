@@ -10,6 +10,7 @@ import gnu.io.UnsupportedCommOperationException;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
 //import java.io.OutputStream;
@@ -24,11 +25,10 @@ public class Connection implements Runnable {
 	CommPortIdentifier serialPortId;
 	Enumeration enumComm;
 	SerialPort serialPort;
-	//OutputStream outputStream;
+	static OutputStream outputStream;
 	InputStream inputStream;
 	Boolean serialPortOpen = false;
 	PrintStream ps;
-
 	int baudrate = 38400;
 	int dataBits = SerialPort.DATABITS_8;
 	int stopBits = SerialPort.STOPBITS_1;
@@ -84,13 +84,13 @@ public class Connection implements Runnable {
 		} catch (PortInUseException e) {
 			System.out.println("Port in use");
 		}
-/*
+
 		try {
 			outputStream = serialPort.getOutputStream();
 		} catch (IOException e) {
 			System.out.println("Keinen Zugriff auf OutputStream");
 		}
-*/
+
 		try {
 			inputStream = serialPort.getInputStream();
 		} catch (IOException e) {
@@ -141,7 +141,14 @@ public class Connection implements Runnable {
 
 	}
 	
-	
+	public static synchronized void writeData(String data) {
+		 System.out.println("Sent: " + data);
+		 try {
+			 outputStream.write(data.getBytes());
+		 } catch (Exception e) {
+		 System.out.println("could not write to port");
+		 }
+		 }
 
 	class serialPortEventListener implements SerialPortEventListener {
 		public void serialEvent(SerialPortEvent event) {
