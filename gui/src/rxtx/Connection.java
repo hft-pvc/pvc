@@ -11,21 +11,16 @@ import gnu.io.UnsupportedCommOperationException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.util.ArrayList;
 //import java.io.OutputStream;
 import java.util.Enumeration;
+import java.util.List;
+import java.util.Properties;
 import java.util.TooManyListenersException;
 
 
 public class Connection implements Runnable {
-
-	public Connection(PrintStream printStream){
-		
-		new Thread(this).start();
-		System.setOut(printStream);
-		System.setErr(printStream);
-		System.out.println("init Connection finished");
-	}
-
+	String os ;
 	CommPortIdentifier serialPortId;
 	Enumeration enumComm;
 	SerialPort serialPort;
@@ -52,6 +47,7 @@ public class Connection implements Runnable {
 		this.ps = ps;
 		System.setOut(ps);
 		System.setErr(ps);
+		
 	}
 
 	public void run()
@@ -160,7 +156,10 @@ public class Connection implements Runnable {
 		} catch (IOException e) {
 			System.out.println("Error while receiving data");
 		}
+
 	}
+	
+	
 
 	class serialPortEventListener implements SerialPortEventListener {
 		public void serialEvent(SerialPortEvent event) {

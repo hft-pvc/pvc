@@ -4,6 +4,8 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Toolkit;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.io.PrintStream;
 
@@ -11,6 +13,7 @@ import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.ScrollPaneConstants;
@@ -26,7 +29,8 @@ import rxtx.Connection;
 public class MainWindow {
 
 	private JFrame frame;
-
+	String portName;
+	Thread connect;
 	/**
 	 * Launch the application.
 	 */
@@ -91,11 +95,11 @@ public class MainWindow {
 		 * ConsolArea
 		 */
 		JTextArea consolTextArea = new JTextArea();
-		PrintStream printStream = new PrintStream(new CustomOutputStream(consolTextArea));
+		final PrintStream printStream = new PrintStream(new CustomOutputStream(consolTextArea));
 		System.setOut(printStream);
 		System.setErr(printStream);
 
-		(new Thread(new Connection("/dev/rfcomm0", printStream))).start();
+		
 		
 		//consolTextArea.setBackground(Color.BLACK);
 		JScrollPane scrollPaneConsole = new JScrollPane (consolTextArea,
@@ -123,9 +127,28 @@ public class MainWindow {
 		menuBar.add(mnNewMenu);
 		
 		JMenuItem mntmNew = new JMenuItem("New Connection");
+		mntmNew.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseReleased(MouseEvent arg0) {
+				String portName = (String)JOptionPane.showInputDialog(null, "Please specify COM-Port:","Chose COM-Port", JOptionPane.QUESTION_MESSAGE,null,null,"/dev/rfcomm0");
+				connect = new Thread(new Connection(portName, printStream));
+				connect.start();
+			}
+		});
 		mnNewMenu.add(mntmNew);
 		
 		JMenuItem mntmClos = new JMenuItem("Close Connection");
+		mntmClos.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseReleased(MouseEvent arg0) {
+				try {
+				connect.stop();
+				System.out.println("Connection closed!");
+				} catch (Exception e) {
+					System.out.println("Connection close failed!");
+				}
+			}
+		});
 		mnNewMenu.add(mntmClos);
 	}
 
