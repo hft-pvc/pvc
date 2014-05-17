@@ -62,11 +62,13 @@ public class Control extends JPanel implements MouseListener{
 	JButton stop = new JButton();
 	stop.setName("stop");
 	stop.setText(" stop");
+	stop.addMouseListener(this);
 	this.add(stop, "cell 0 1,alignx left,aligny top");
 	
 	JButton toggle = new JButton();
 	toggle.setName("toggle");
 	toggle.setText("toggle");
+	toggle.addMouseListener(this);
 	this.add(toggle, "cell 0 2,alignx left,aligny top");
 	}
 	

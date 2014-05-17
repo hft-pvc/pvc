@@ -34,7 +34,7 @@ public class Connection implements Runnable {
 	int stopBits = SerialPort.STOPBITS_1;
 	int parity = SerialPort.PARITY_NONE;
 	String portName = "/dev/ttyUSB0";
-	
+	 public static final int TIME_OUT = 2000;
 
 	public Connection(String port, PrintStream ps)
 	{
@@ -79,7 +79,7 @@ public class Connection implements Runnable {
 		}
 
 		try {
-			serialPort = (SerialPort) serialPortId.open("Open and send", 500);
+			serialPort = (SerialPort) serialPortId.open("Open and send", TIME_OUT);
 			serialPort.setRTS(false);
 		} catch (PortInUseException e) {
 			System.out.println("Port in use");
@@ -142,7 +142,7 @@ public class Connection implements Runnable {
 	}
 	
 	public static synchronized void writeData(String data) {
-		 System.out.println("Sent: " + data);
+		 //System.out.println("Sent: " + data);
 		 try {
 			 outputStream.write(data.getBytes());
 		 } catch (Exception e) {
@@ -172,7 +172,6 @@ public class Connection implements Runnable {
 				System.out.println("Event FE");
 				break;
 			case SerialPortEvent.OUTPUT_BUFFER_EMPTY:
-				System.out.println("Event BUFFER_EMPTY");
 				break;
 			case SerialPortEvent.PE:
 				System.out.println("Event PE");
