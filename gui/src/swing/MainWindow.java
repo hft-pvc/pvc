@@ -30,7 +30,8 @@ public class MainWindow {
 
 	private JFrame frame;
 	String portName;
-	Thread connect;
+	Connection connect;
+	Thread thread;
 	/**
 	 * Launch the application.
 	 */
@@ -131,8 +132,9 @@ public class MainWindow {
 			@Override
 			public void mouseReleased(MouseEvent arg0) {
 				String portName = (String)JOptionPane.showInputDialog(null, "Please specify COM-Port:","Chose COM-Port", JOptionPane.QUESTION_MESSAGE,null,null,"/dev/rfcomm0");
-				connect = new Thread(new Connection(portName, printStream));
-				connect.start();
+				connect = new Connection(portName, printStream);
+				thread = new Thread(connect);
+				thread.start();
 			}
 		});
 		mnNewMenu.add(mntmNew);
@@ -142,7 +144,8 @@ public class MainWindow {
 			@Override
 			public void mouseReleased(MouseEvent arg0) {
 				try {
-				connect.stop();
+				connect.closeSerialPort();
+				thread.stop();
 				System.out.println("Connection closed!");
 				} catch (Exception e) {
 					System.out.println("Connection close failed!");

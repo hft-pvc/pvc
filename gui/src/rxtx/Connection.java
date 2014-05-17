@@ -36,11 +36,6 @@ public class Connection implements Runnable {
 	String portName = "/dev/ttyUSB0";
 	
 
-	public Connection(String port)
-	{
-		this.portName = port;
-	}
-
 	public Connection(String port, PrintStream ps)
 	{
 		this.portName = port;
@@ -52,26 +47,12 @@ public class Connection implements Runnable {
 
 	public void run()
 	{
-		if (!openSerialPort(portName))
+		if (!openSerialPort(portName)){
 			return;
-
-		while (true) {
-			try {
-				Thread.sleep(1000);
-			} catch(InterruptedException e) {
-			} finally {
-				if (openSerialPort(portName)) {
-					System.out.println("going to sleep");
-					try {
-						Thread.sleep(10000);
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-					closeSerialPort();
-					break;
-				}
-			}
+		}
+		openSerialPort(portName);
+		while(true){
+			
 		}
 	}
 
@@ -120,10 +101,11 @@ public class Connection implements Runnable {
 			serialPort.addEventListener(new serialPortEventListener());
 		} catch (TooManyListenersException e) {
 			System.out.println("TooManyListenersException");
+			
 		}
 
 		serialPort.notifyOnDataAvailable(true);
-
+		serialPort.notifyOnOutputEmpty(true);
 		try {
 			serialPort.setSerialPortParams(baudrate, dataBits, stopBits, parity);
 		} catch(UnsupportedCommOperationException e) {
@@ -134,7 +116,7 @@ public class Connection implements Runnable {
 		return true;
 	}
 
-	void closeSerialPort()
+	public void closeSerialPort()
 	{
 		if (serialPortOpen) {
 			System.out.println("Closing Serialport");
