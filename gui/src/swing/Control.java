@@ -1,6 +1,9 @@
 package swing;
 
+import java.awt.Dimension;
 import java.awt.Image;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
@@ -23,6 +26,7 @@ import net.miginfocom.swing.MigLayout;
 */
 public class Control extends JPanel implements MouseListener{
 	Connection connect;
+	JButton stop;
 	Control(Connection connect) throws IOException{
 		this.connect = connect;
 	this.setLayout(new MigLayout("", "[44px][24px][][44px][][24px][][][][grow][]", "[44px][][][grow]"));
@@ -62,13 +66,28 @@ public class Control extends JPanel implements MouseListener{
 	JButton stop = new JButton();
 	stop.setName("stop");
 	stop.setText(" stop");
-	stop.addMouseListener(this);
+	stop.setPreferredSize(new Dimension(100,100));
+	stop.addActionListener(new ActionListener() {
+		
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			System.err.println("RP6 stop!");
+			Connection.writeData("1");
+		}
+	});
 	this.add(stop, "cell 0 1,alignx left,aligny top");
-	
 	JButton toggle = new JButton();
 	toggle.setName("toggle");
 	toggle.setText("toggle");
 	toggle.addMouseListener(this);
+	toggle.addActionListener(new ActionListener() {
+		
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			System.err.println("RP6 Wait!!");
+			Connection.writeData("0");
+		}
+	});
 	this.add(toggle, "cell 0 2,alignx left,aligny top");
 	}
 	
