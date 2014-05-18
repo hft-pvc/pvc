@@ -3,7 +3,6 @@ package swing;
 import java.awt.Image;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -13,8 +12,8 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import rxtx.Connection;
 import net.miginfocom.swing.MigLayout;
+import rxtx.Connection;
 /**
 *
 * 
@@ -94,16 +93,16 @@ public class Control extends JPanel implements MouseListener{
 	public void mousePressed(MouseEvent e) {
 		
 		if(e.getComponent().getName().endsWith("up")){
-			System.err.println("RP6 drive forward!");
+//			System.err.println("RP6 drive forward!");
 			connect.writeData("2");
 		}else if(e.getComponent().getName().endsWith("left")){
-			System.err.println("RP6 drive left!");
+//			System.err.println("RP6 drive left!");
 			connect.writeData("4");
 		}else if(e.getComponent().getName().endsWith("right")){
-			System.err.println("RP6 drive right!");
+//			System.err.println("RP6 drive right!");
 			connect.writeData("5");
 		}else if(e.getComponent().getName().endsWith("down")){
-			System.err.println("RP6 drive backwards!");
+//			System.err.println("RP6 drive backwards!");
 			connect.writeData("3");
 		}
 		

@@ -1,5 +1,7 @@
 #include "RP6RobotBaseLib.h"
 
+#define IDLE 0
+#define MOVE 1
 
 // The behaviour command data type:
 typedef struct {
@@ -13,6 +15,8 @@ typedef struct {
 	uint16_t move_value;  // move value is used for distance and angle values
 	uint8_t  state;       // state of the behaviour
 } behaviour_command_t;
+
+const char* direction[4] = {"FWD", "BWD", "LEFT", "RIGHT"};
 
 void acsStateChanged(void)
 {
@@ -51,16 +55,41 @@ void bumpersStateChanged(void)
         writeString_P(" - Rechter Bumper nicht gedrueckt.\n");
 }
 
-void run(void)
-{
+void moveCommand(behaviour_command_t* cmd) {
+    if(cmd->move_value > 0) {
+        if (cmd->rotate) {
+            rotate(cmd->speed_left, cmd->dir, cmd->move_value, false);
+        } else if (cmd->move) {
+            move(cmd->speed_left, cmd->dir, DIST_MM(cmd->move_value), false);
+        }
+        // clear move value - the move commands are only given once 
+        // and then runs in background
+        cmd->move_value = 0; 
+    }
+    else if (!(cmd->move || cmd->rotate)) {
+        changeDirection(cmd->dir);
+        moveAtSpeed(cmd->speed_left, cmd->speed_right);
+    }
+    else if (isMovementComplete()) { // movement complete? -> clear flags!
+        cmd->rotate = false;
+        cmd->move = false;
+    }
+}
+
+#define EXTERN_SPEED_L_ARC_LEFT  100
+#define EXTERN_SPEED_L_ARC_RIGHT 100
+#define EXTERN_SPEED_R_ARC_LEFT  100
+#define EXTERN_SPEED_R_ARC_RIGHT 100
+#define EXTERN_SPEED_ROTATE      100
+
+behaviour_command_t ext = {0, 0, FWD, false, false, 0, IDLE};
+
+void behaviour_ext(void) {
     if(getBufferLength())
     {
         uint8_t a = readChar();
         if(a == 10)
             return;
-        writeString_P(" -> ");
-        writeInteger(a, DEC);
-        writeString_P("\n");
 
         a -= 48;
         if(a>9)
@@ -69,81 +98,62 @@ void run(void)
         {
             case 0:
                 writeString_P("IDLE\n");
+                ext.state = IDLE;
                 break;
             case 1:
                 writeString_P("STOP\n");
+                ext.speed_left = 0;
+                ext.speed_right = 0;
+                ext.move = false;
+                ext.state = MOVE;
                 break;
             case 2:
                 writeString_P("FWD\n");
+                ext.speed_left = 50;
+                ext.speed_right = 50;
+                ext.dir = FWD;
+                ext.move = true;
+                ext.state = MOVE;
                 break;
             case 3:
                 writeString_P("BWD\n");
+                ext.speed_left = 50;
+                ext.speed_right = 50;
+                ext.dir = BWD;
+                ext.move = true;
+                ext.state = MOVE;
                 break;
             case 4:
                 writeString_P("LEFT\n");
+                ext.speed_left = 50;
+                ext.dir = LEFT;
+                ext.rotate = true;
+                ext.state = MOVE;
                 break;
             case 5:
                 writeString_P("RIGHT\n");
+                ext.speed_left = 50;
+                ext.dir = RIGHT;
+                ext.rotate = true;
+                ext.state = MOVE;
                 break;
 
 
         }
     }
-/*
-    // clear receive buffer
-    char receiveBuffer[charsToReceive+1];
-    clearReceptionBuffer();
-    uint8_t cnt;
-    for(cnt = 0; cnt < charsToReceive; cnt++) {
-        receiveBuffer[cnt] = 0;
-    }
-    uint8_t buffer_pos = 0;
-    while(true)
-    {
-        while(getBufferLength()) {
-            receiveBuffer[buffer_pos] = readChar(); // get next character from reception buffer
-            if(receiveBuffer[buffer_pos]=='\n') // End of line detected!
-            {
-                receiveBuffer[buffer_pos]='\0'; // Terminate String with a 0, so other routines.
-    //            buffer_pos = 0;                 // can determine where it ends!
-                                                // We also overwrite the Newline character here.
-                break; // We are done and can leave reception loop!
-            }
-            else if(buffer_pos >= charsToReceive) // IMPORTANT: We can not receive more
-            {                                     // characters than "charsToReceive" because
-                                                  // our buffer wouldn't be large enough!
-                receiveBuffer[charsToReceive]='\0'; // So if we receive more characters, we just
-                                                 // stop reception and terminate the String.
-                writeString_P("\n\nYou entered more characters than possible!\n");
-                break; // We are done and can leave reception loop!
-            }
-            buffer_pos++;
-
-        }
-        if(buffer_pos)
-        {
-            writeChar('\n');
-            for(cnt = 0; cnt < charsToReceive; cnt++) {
-                writeInteger(receiveBuffer[cnt],DEC);
-                writeChar(',');
-            }
-            writeInteger(receiveBuffer[charsToReceive],DEC);
-            writeString_P("\n");
-
-            writeString_P("-> \"");
-            writeString(receiveBuffer); // Output the received data as a String
-            writeString_P("\" !\n");
-
-            writeInteger(uart_status, DEC)
-
-            buffer_pos = 0;
-        }
-    }
-*/
 }
 
-int main(void)
-{
+void behaviourController(void) {
+    // Call all the behaviour tasks:
+    behaviour_ext();
+
+    if (ext.state != IDLE) {
+        moveCommand(&ext);
+        ext.state = IDLE;
+    }
+}
+
+int main(void) {
     initRobotBase(); 
 
     writeString_P("\n\n             __.---.___\n");
@@ -159,8 +169,10 @@ int main(void)
     mSleep(1000);
     setLEDs(0b001001);
 
-    // Event Handler registrieren:
+    // Set ACS state changed event handler: 
     ACS_setStateChangedHandler(acsStateChanged);
+
+    // Set Bumpers state changed event handler:
     BUMPERS_setStateChangedHandler(bumpersStateChanged);
 
     powerON(); // Turn on Encoders, Current sensing, ACS and Power LED.
@@ -171,9 +183,8 @@ int main(void)
 
     while(true)
     {
-        run();
-        task_Bumpers(); // ständig Bumper auslesen
-        task_ACS(); // ständig ACS auslesen (Anti Collision System)
+        behaviourController();
+        task_RP6System();
     }
     return 0;
 }

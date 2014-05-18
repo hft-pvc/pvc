@@ -12,11 +12,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.util.ArrayList;
 //import java.io.OutputStream;
 import java.util.Enumeration;
-import java.util.List;
-import java.util.Properties;
 import java.util.TooManyListenersException;
 
 
@@ -133,7 +130,7 @@ public class Connection implements Runnable {
 			int num;
 			while(inputStream.available() > 0) {
 				num = inputStream.read(data, 0, data.length);
-				System.out.println("Receiving: "+ new String(data, 0, num));
+				System.out.println(new String(data, 0, num));
 			}
 		} catch (IOException e) {
 			System.out.println("Error while receiving data");
