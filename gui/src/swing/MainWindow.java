@@ -66,7 +66,7 @@ public class MainWindow {
 	 * @throws IOException 
 	 */
 	private void initialize() throws IOException {
-		Dimension min = new Dimension(950, 700);
+		Dimension min = new Dimension(950, 715);
 		frame = new JFrame();
 		frame.getContentPane().setBackground(Color.BLACK);
 		frame.setMinimumSize(min);
