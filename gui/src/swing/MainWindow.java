@@ -79,6 +79,7 @@ public class MainWindow {
 		/**
 		 * MapArea
 		 */
+		
 		Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
 		Dimension sizeConsole = new Dimension(screen.width,screen.height);
 		Draw drawMap = new Draw();
@@ -115,7 +116,7 @@ public class MainWindow {
 		Control control = new Control(connect);
 		control.setBackground(Color.BLACK);
 		//control.setBackground(UIManager.getColor("Button.background"));
-		frame.getContentPane().add(control, "wmax 200px,hmax 200px,  cell 2 1");
+		frame.getContentPane().add(control, "wmax 220px,hmax 200px,  cell 2 1");
 
 
 		/**
