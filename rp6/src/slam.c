@@ -2,6 +2,7 @@
 
 #define IDLE 0
 #define MOVE 1
+#define MOVE_IDLE 7
 
 // The behaviour command data type:
 typedef struct {
@@ -83,6 +84,7 @@ void moveCommand(behaviour_command_t* cmd) {
 #define EXTERN_SPEED_ROTATE      100
 
 behaviour_command_t ext = {0, 0, FWD, false, false, 0, IDLE};
+behaviour_command_t idle = {0, 0, FWD, false, false, 0, IDLE};
 
 void behaviour_ext(void) {
     if(getBufferLength())
@@ -113,7 +115,11 @@ void behaviour_ext(void) {
                 ext.speed_right = 50;
                 ext.dir = FWD;
                 ext.move = true;
+                ext.move_value = 20;
                 ext.state = MOVE;
+                setStopwatch4(400);
+                startStopwatch4();
+                idle.state = MOVE_IDLE;
                 break;
             case 3:
                 writeString_P("BWD\n");
@@ -143,14 +149,28 @@ void behaviour_ext(void) {
     }
 }
 
+
+void behaviour_idle(void) {
+    switch(idle.state) {
+        case MOVE_IDLE:
+            if (getStopwatch4() > 1000) {
+                stopStopwatch4();
+                setStopwatch4(0);
+                ext.state = IDLE;
+            }
+        break;
+    }
+}
+
 void behaviourController(void) {
     // Call all the behaviour tasks:
     behaviour_ext();
+    behaviour_idle();
 
     if (ext.state != IDLE) {
+        writeString_P("I'm moving");
         moveCommand(&ext);
-        ext.state = IDLE;
-    }
+     }
 }
 
 int main(void) {
