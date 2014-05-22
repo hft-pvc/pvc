@@ -75,7 +75,7 @@ public class Control extends JPanel implements MouseListener{
 			Connection.writeData("1");
 		}
 	});
-	this.add(stop, "cell 0 1,alignx left,aligny top");
+	this.add(stop, "cell 0 1, hmax 25px, alignx left,aligny top");
 	JButton toggle = new JButton();
 	toggle.setName("toggle");
 	toggle.setText("toggle");
