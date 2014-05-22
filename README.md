@@ -40,3 +40,10 @@ To connect to the serial port we're using __pyserial__:
 ```
 sudo miniterm.py --exit-char=3 /dev/rfcomm0 38400
 ```
+
+# Starting GUI
+
+It is necessary to start the GUI with _sudo_ and the rxtx library.
+```
+sudo java -Djava.library.path=/usr/lib64/rxtx-2 -jar slam-gui.jar
+```
