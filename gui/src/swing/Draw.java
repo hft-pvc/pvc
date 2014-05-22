@@ -29,8 +29,6 @@ public class Draw  extends JPanel{
 			@Override
 			public void mouseDragged(MouseEvent arg0) {
 				drawPoint(arg0.getX(), arg0.getY());
-				// Ausgabe der Mauskoordinaten in der Kommandozeile
-				System.out.println(arg0.getX() + " / " + arg0.getY());
 			}
 		});
 	}

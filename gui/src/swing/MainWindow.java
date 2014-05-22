@@ -66,7 +66,7 @@ public class MainWindow {
 	 * @throws IOException 
 	 */
 	private void initialize() throws IOException {
-		Dimension min = new Dimension(950, 700);
+		Dimension min = new Dimension(950, 715);
 		frame = new JFrame();
 		frame.getContentPane().setBackground(Color.BLACK);
 		frame.setMinimumSize(min);
@@ -79,6 +79,7 @@ public class MainWindow {
 		/**
 		 * MapArea
 		 */
+		
 		Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
 		Dimension sizeConsole = new Dimension(screen.width,screen.height);
 		Draw drawMap = new Draw();
@@ -115,7 +116,7 @@ public class MainWindow {
 		Control control = new Control(connect);
 		control.setBackground(Color.BLACK);
 		//control.setBackground(UIManager.getColor("Button.background"));
-		frame.getContentPane().add(control, "wmax 200px,hmax 200px,  cell 2 1");
+		frame.getContentPane().add(control, "wmax 220px,hmax 200px,  cell 2 1");
 
 
 		/**
