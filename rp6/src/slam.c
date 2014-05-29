@@ -3,6 +3,7 @@
 #define IDLE 0
 #define MOVE 1
 #define MOVE_IDLE 7
+#define NEXT_FWD 8
 
 // The behaviour command data type:
 typedef struct {
@@ -218,8 +219,10 @@ void behaviour_ext(void) {
                 ext.speed_right = 50;
                 ext.dir = FWD;
                 ext.move = true;
-                ext.move_value = 300;
+                ext.move_value = 300; // 30cm
                 ext.state = MOVE;
+                
+                // Make the robot stop afterwards
                 setStopwatch4(400);
                 startStopwatch4();
                 idle.state = MOVE_IDLE;
@@ -228,26 +231,41 @@ void behaviour_ext(void) {
                 writeString_P("BWD\n");
                 ext.speed_left = 50;
                 ext.speed_right = 50;
-                ext.move_value = 300;
                 ext.dir = BWD;
+                ext.move_value = 300; // 30cm
                 ext.move = true;
                 ext.state = MOVE;
+
+                // Make the robot stop afterwards
+                setStopwatch4(400);
+                startStopwatch4();
+                idle.state = MOVE_IDLE;
                 break;
             case 4:
-                writeString_P("LEFT\n");
+                writeString_P("LEFT");
                 ext.speed_left = 50;
                 ext.dir = LEFT;
-                ext.move_value = 45;
                 ext.rotate = true;
+                ext.move_value = 90;
                 ext.state = MOVE;
+
+                // Make the robot stop afterwards
+                setStopwatch4(400);
+                startStopwatch4();
+                idle.state = NEXT_FWD;
                 break;
             case 5:
-                writeString_P("RIGHT\n");
+                writeString_P("RIGHT");
                 ext.speed_left = 50;
                 ext.dir = RIGHT;
                 ext.rotate = true;
-                ext.move_value = 45;
+                ext.move_value = 90;
                 ext.state = MOVE;
+
+                // Make the robot stop afterwards
+                setStopwatch4(400);
+                startStopwatch4();
+                ext.state = NEXT_FWD;
                 break;
 
 
@@ -502,12 +520,33 @@ void behaviour_idle(void) {
                 ext.state = IDLE;
             }
         break;
+        case NEXT_FWD:
+            //if (getStopwatch4() > 1000) {
+              //  stopStopwatch4();
+              //  setStopwatch4(0);
+
+                if (!ext.rotate) {
+                    mywrite("Moving after turning LEFT\n", NEXT_FWD);
+                    ext.speed_left = 50;
+                    ext.speed_right = 50;
+                    ext.dir = FWD;
+                    ext.move = true;
+                    ext.move_value = 300; // 30cm
+                    ext.state = MOVE;
+                    
+                    // Make the robot stop afterwards
+                    setStopwatch4(400);
+                    startStopwatch4();
+                    idle.state = MOVE_IDLE;
+                }
+            //}
+        break;
     }
 }
 
 void behaviourController(void) {
     // Call all the behaviour tasks:
-	/*behaviour_cruise();
+/*	behaviour_cruise();
     behaviour_avoid();
 	behaviour_escape();
 
@@ -528,7 +567,6 @@ void behaviourController(void) {
     behaviour_idle();
 
     if (ext.state != IDLE) {
-        writeString_P("I'm moving");
         moveCommand(&ext);
      }
 }
