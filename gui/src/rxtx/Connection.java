@@ -8,10 +8,13 @@ import gnu.io.SerialPortEvent;
 import gnu.io.SerialPortEventListener;
 import gnu.io.UnsupportedCommOperationException;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.io.Reader;
+import java.util.ArrayList;
 //import java.io.OutputStream;
 import java.util.Enumeration;
 import java.util.TooManyListenersException;
@@ -24,6 +27,7 @@ public class Connection implements Runnable {
 	SerialPort serialPort;
 	static OutputStream outputStream;
 	InputStream inputStream;
+	StringBuilder inputStringBuilder = new StringBuilder();
 	Boolean serialPortOpen = false;
 	PrintStream ps;
 	int baudrate = 38400;
@@ -126,7 +130,8 @@ public class Connection implements Runnable {
 	
 	void serialPortDataAvailable() {
 		try {
-			byte[] data = new byte[150];
+			
+			byte[] data = new byte[300];
 			int num;
 			while(inputStream.available() > 0) {
 				num = inputStream.read(data, 0, data.length);
