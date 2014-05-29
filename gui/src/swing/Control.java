@@ -62,6 +62,20 @@ public class Control extends JPanel implements MouseListener{
 	down.addMouseListener(this);
 	this.add(down, "cell 2 2,alignx left,aligny top");
 	
+	JButton automatic = new JButton();
+	automatic.setName("automatic");
+	automatic.setText("auto");
+	automatic.setPreferredSize(new Dimension(100,100));
+	automatic.addActionListener(new ActionListener() {
+		
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			System.err.println("RP6 automatic mode!");
+			Connection.writeData("6");
+		}
+	});
+	this.add(automatic, "cell 0 0, hmax 25px, wmax 69px, alignx left,aligny bottom");
+	
 	JButton stop = new JButton();
 	stop.setName("stop");
 	stop.setText(" stop");
@@ -75,6 +89,7 @@ public class Control extends JPanel implements MouseListener{
 		}
 	});
 	this.add(stop, "cell 0 1, hmax 25px, alignx left,aligny top");
+	
 	JButton toggle = new JButton();
 	toggle.setName("toggle");
 	toggle.setText("toggle");
