@@ -133,15 +133,11 @@ public class Connection implements Runnable {
 	void serialPortDataAvailable() {
 		try {
 			
-			byte[] data = new byte[150];
+			byte[] data = new byte[300];
 			int num;
 			while(inputStream.available() > 0) {
-				String lineSeparator = "/n";
 				num = inputStream.read(data, 0, data.length);
-			    StringBuilder content = new StringBuilder();
-	            content.append(num + lineSeparator);
-				//System.out.println("Receiving: "+ new String(data, 0, num));
-	            System.out.println(content.toString());
+				System.out.println("Receiving: "+ new String(data, 0, num));
 			}
 		} catch (IOException e) {
 			System.out.println("Error while receiving data");
