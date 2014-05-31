@@ -14,6 +14,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JSlider;
 
 import net.miginfocom.swing.MigLayout;
 import rxtx.Connection;
@@ -79,7 +80,7 @@ public class Control extends JPanel implements MouseListener {
 				Connection.writeData("0");
 			}
 		});
-		this.add(start, "cell 0 0, hmax 25px, alignx left,aligny bottom");
+		this.add(start, "cell 0 0, hmax 25px, wmin 80px, alignx left,aligny bottom");
 
 		// Button stop
 		JButton stop = new JButton();
@@ -94,7 +95,7 @@ public class Control extends JPanel implements MouseListener {
 				Connection.writeData("1");
 			}
 		});
-		this.add(stop, "cell 0 1, hmax 25px,  alignx left,aligny bottom");
+		this.add(stop, "cell 0 1, hmax 25px,   alignx left,aligny bottom");
 		
 		// Button automatic mode
 		JButton automatic = new JButton();
@@ -110,7 +111,14 @@ public class Control extends JPanel implements MouseListener {
 			}
 		});
 		this.add(automatic, "cell 0 2, hmax 25px,  alignx left,aligny top");
-
+		JLabel speedL = new JLabel();
+		speedL.setName("Speed:");
+		speedL.setText("Speed:");
+		this.add(speedL, "cell 0 3 ,  alignx left,aligny top");
+		JSlider speed = new JSlider(0, 100, 50 );
+		speed.setPaintTicks( true );
+		speed.setMajorTickSpacing(30 );
+		this.add(speed, "cell 0 3 ,  alignx left,aligny bottom");
 	}
 
 	@Override
