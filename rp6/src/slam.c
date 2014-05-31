@@ -20,18 +20,12 @@ typedef struct {
 
 behaviour_command_t STOP = {0, 0, FWD, false, false, 0, IDLE};
 
-/*****************************************************************************/
-// Cruise Behaviour:
-
-#define CRUISE_SPEED_FWD    500 //40 // 100 Default speed when no obstacles are detected!
-
-#define MOVE_FORWARDS 1
-behaviour_command_t cruise = {CRUISE_SPEED_FWD, CRUISE_SPEED_FWD, FWD, 
-								false, false, 0, MOVE_FORWARDS};
+#define CRUISE_SPEED_FWD    100 //40 // 100 Default speed when no obstacles are detected!
+behaviour_command_t cruise = {CRUISE_SPEED_FWD, CRUISE_SPEED_FWD, FWD, false, false, 1, MOVE};
 
 
+unsigned isAuto = false;
 const char* direction[4] = {"FWD", "BWD", "LEFT", "RIGHT"};
-
 int lastState = 0;
 
 void mywrite(const char *pstring, int state)
@@ -42,84 +36,6 @@ void mywrite(const char *pstring, int state)
         uint8_t c;
         for (;(c = *pstring++);writeChar(c));
     }
-}
-
-/**
-* We don't have anything to do here - this behaviour has only
-* a constant value for moving forwards - s. above!
-* Of course you can change this and add some random or timed movements 
-* in here...
-*/
-void behaviour_cruise(void)
-{
-    uint8_t charsToReceive = 16;
-    
-    //creat a new, clear buffer
-    char receiveBuffer[charsToReceive+1];
-    clearReceptionBuffer();
-    uint8_t cnt;
-    for(cnt = 0; cnt < charsToReceive; cnt++) {
-        receiveBuffer[cnt]=0;
-    }
-
-    uint8_t buffer_pos = 0;
-//    while(true)
-//    {
-        while(getBufferLength())
-        {
-            receiveBuffer[buffer_pos] = readChar();
-            if(receiveBuffer[buffer_pos] == '\n')
-            {
-                receiveBuffer[buffer_pos] = '\0';
-                buffer_pos = 0;
-                break;
-            }
-            else if(buffer_pos >= charsToReceive)
-            {
-                receiveBuffer[charsToReceive] = '\0';
-                writeString_P("\n\nYou entered more characters than possible!\n");
-                break;
-            }
-            buffer_pos++;
-        }
-//    }
-
-    writeChar('\n');
-
-//    writeString_P("Your input was (Bytes):\n");
-//
-//    for(cnt = 0; cnt < charsToReceive; cnt++) {
-//        writeInteger(receiveBuffer[cnt],DEC);
-//        writeChar(',');
-//    }
-//    writeInteger(receiveBuffer[charsToReceive],DEC);
-//    writeString_P("\n");
-
-    writeString_P("received: ");
-    writeString(receiveBuffer);
-    writeString_P("\n");
-
-
-//    uint8_t length = getBufferLength();
-//    if (length > 0){
-////         readChars(char *buf, uint8_t numberOfChars);
-//        char buf[length+1];
-//        readChars(buf, length);
-//        char text[length+55];
-//        sprintf(text, "data read: %s; length: %d", buf, length);
-//        mywrite(text, 42);
-//        if (buf[0] == 's') {
-//			STOP.dir = FWD;
-//            STOP.rotate = 0;
-//            STOP.speed_left = 0;
-//            STOP.speed_right = 0;
-//			STOP.move = false;
-//            moveCommand(&STOP);
-//            writeString_P("STOP\n");
-//        } else {
-//            writeString_P("\n->fu\n");
-//        }
-//    }
 }
 
 void acsStateChanged(void)
@@ -146,20 +62,6 @@ void acsStateChanged(void)
     updateStatusLEDs(); 
 } 
 
-/*
-void bumpersStateChanged(void)
-{
-    writeString_P("\nBumper Status hat sich geaendert:\n");
-    if(bumper_left) 
-        writeString_P(" - Linker Bumper gedrueckt!\n");
-    else
-        writeString_P(" - Linker Bumper nicht gedrueckt.\n");
-    if(bumper_right)
-        writeString_P(" - Rechter Bumper gedrueckt!\n");
-    else
-        writeString_P(" - Rechter Bumper nicht gedrueckt.\n");
-}
-*/
 void moveCommand(behaviour_command_t* cmd) {
     if(cmd->move_value > 0) {
         if (cmd->rotate) {
@@ -181,99 +83,7 @@ void moveCommand(behaviour_command_t* cmd) {
     }
 }
 
-#define EXTERN_SPEED_L_ARC_LEFT  100
-#define EXTERN_SPEED_L_ARC_RIGHT 100
-#define EXTERN_SPEED_R_ARC_LEFT  100
-#define EXTERN_SPEED_R_ARC_RIGHT 100
-#define EXTERN_SPEED_ROTATE      100
 
-behaviour_command_t ext = {0, 0, FWD, false, false, 0, IDLE};
-behaviour_command_t idle = {0, 0, FWD, false, false, 0, IDLE};
-
-void behaviour_ext(void) {
-    if(getBufferLength())
-    {
-        uint8_t a = readChar();
-        if(a == 10)
-            return;
-
-        a -= 48;
-        if(a>9)
-            return;
-        switch(a)
-        {
-            case 0:
-                writeString_P("IDLE\n");
-                ext.state = IDLE;
-                break;
-            case 1:
-                writeString_P("STOP\n");
-                ext.speed_left = 0;
-                ext.speed_right = 0;
-                ext.move = false;
-                ext.state = MOVE;
-                break;
-            case 2:
-                writeString_P("FWD\n");
-                ext.speed_left = 50;
-                ext.speed_right = 50;
-                ext.dir = FWD;
-                ext.move = true;
-                ext.move_value = 300; // 30cm
-                ext.state = MOVE;
-                
-                // Make the robot stop afterwards
-                setStopwatch4(400);
-                startStopwatch4();
-                idle.state = MOVE_IDLE;
-                break;
-            case 3:
-                writeString_P("BWD\n");
-                ext.speed_left = 50;
-                ext.speed_right = 50;
-                ext.dir = BWD;
-                ext.move_value = 300; // 30cm
-                ext.move = true;
-                ext.state = MOVE;
-
-                // Make the robot stop afterwards
-                setStopwatch4(400);
-                startStopwatch4();
-                idle.state = MOVE_IDLE;
-                break;
-            case 4:
-                writeString_P("LEFT");
-                ext.speed_left = 50;
-                ext.dir = LEFT;
-                ext.rotate = true;
-                ext.move_value = 90;
-                ext.state = MOVE;
-
-                // Make the robot stop afterwards
-                setStopwatch4(400);
-                startStopwatch4();
-                idle.state = NEXT_FWD;
-                break;
-            case 5:
-                writeString_P("RIGHT");
-                ext.speed_left = 50;
-                ext.dir = RIGHT;
-                ext.rotate = true;
-                ext.move_value = 90;
-                ext.state = MOVE;
-
-                // Make the robot stop afterwards
-                setStopwatch4(400);
-                startStopwatch4();
-                ext.state = NEXT_FWD;
-                break;
-
-
-        }
-    }
-}
-
-/*****************************************************************************/
 // Escape Behaviour:
 
 #define ESCAPE_SPEED_BWD    100 //40 // 100
@@ -511,6 +321,134 @@ void behaviour_avoid(void)
 	}
 }
 
+/* Behaviour for external commands comming either from console or GUI */
+#define EXTERN_SPEED_L_ARC_LEFT  100
+#define EXTERN_SPEED_L_ARC_RIGHT 100
+#define EXTERN_SPEED_R_ARC_LEFT  100
+#define EXTERN_SPEED_R_ARC_RIGHT 100
+#define EXTERN_SPEED_ROTATE      100
+
+behaviour_command_t ext = {0, 0, FWD, false, false, 0, IDLE};
+behaviour_command_t idle = {0, 0, FWD, false, false, 0, IDLE};
+
+void behaviour_ext(void) {
+    if(getBufferLength())
+    {
+        uint8_t a = readChar();
+        if(a == 10)
+            return;
+
+        a -= 48;
+        if(a>9)
+            return;
+        switch(a)
+        {
+            case 0: // IDLE
+                writeString_P("4");
+                ext.state = IDLE;
+                break;
+            case 1: // STOP
+                writeString_P("5");
+                writeString_P("\n");
+                // Stop everything and disable the auto mode
+                
+                isAuto = false;
+                
+                ext.speed_left = 0;
+                ext.speed_right = 0;
+                ext.move = false;
+                ext.state = MOVE;
+
+                avoid.speed_left = 0;
+                avoid.speed_right = 0;
+                avoid.move = false;
+                avoid.state = IDLE;
+
+                escape.speed_left = 0;
+                escape.speed_right = 0;
+                escape.move = false;
+                escape.state = IDLE;  
+
+                cruise.speed_left = 0;
+                cruise.speed_right = 0;
+                cruise.move = false;
+                cruise.state = IDLE;  
+                break;
+            case 2: // FWD
+                writeString_P("2");
+                writeString_P("\n");
+                ext.speed_left = 50;
+                ext.speed_right = 50;
+                ext.dir = FWD;
+                ext.move = true;
+                ext.move_value = 300; // 30cm
+                ext.state = MOVE;
+                
+                // Make the robot stop afterwards
+                setStopwatch4(400);
+                startStopwatch4();
+                idle.state = MOVE_IDLE;
+                break;
+            case 3: // BWD
+                writeString_P("3");
+                writeString_P("\n");
+                ext.speed_left = 50;
+                ext.speed_right = 50;
+                ext.dir = BWD;
+                ext.move_value = 300; // 30cm
+                ext.move = true;
+                ext.state = MOVE;
+
+                // Make the robot stop afterwards
+                setStopwatch4(400);
+                startStopwatch4();
+                idle.state = MOVE_IDLE;
+                break;
+            case 4: // LEFT
+                writeString_P("0");
+                writeString_P("\n");
+                ext.speed_left = 50;
+                ext.dir = LEFT;
+                ext.rotate = true;
+                ext.move_value = 90;
+                ext.state = MOVE;
+
+                // Make the robot stop afterwards
+                setStopwatch4(400);
+                startStopwatch4();
+                idle.state = NEXT_FWD;
+                break;
+            case 5: // RIGHT
+                writeString_P("1");
+                writeString_P("\n");
+                ext.speed_left = 50;
+                ext.dir = RIGHT;
+                ext.rotate = true;
+                ext.move_value = 90;
+                ext.state = MOVE;
+
+                // Make the robot stop afterwards
+                setStopwatch4(400);
+                startStopwatch4();
+                idle.state = NEXT_FWD;
+                break;
+            case 6:
+                isAuto = !isAuto;
+                writeString_P("RP6 in auto mode");
+
+                // initial cruise settings
+                cruise.speed_left = CRUISE_SPEED_FWD;
+                cruise.speed_right = CRUISE_SPEED_FWD;
+                cruise.dir = FWD;
+                cruise.rotate = false;
+                cruise.move = true;
+                cruise.move_value = 1;
+                cruise.state = MOVE; 
+                break;
+        }
+    }
+}
+
 void behaviour_idle(void) {
     switch(idle.state) {
         case MOVE_IDLE:
@@ -521,54 +459,53 @@ void behaviour_idle(void) {
             }
         break;
         case NEXT_FWD:
-            //if (getStopwatch4() > 1000) {
-              //  stopStopwatch4();
-              //  setStopwatch4(0);
+            if (!ext.rotate) {
+                mywrite("Moving after turning LEFT\n", NEXT_FWD);
 
-                if (!ext.rotate) {
-                    mywrite("Moving after turning LEFT\n", NEXT_FWD);
-                    ext.speed_left = 50;
-                    ext.speed_right = 50;
-                    ext.dir = FWD;
-                    ext.move = true;
-                    ext.move_value = 300; // 30cm
-                    ext.state = MOVE;
-                    
-                    // Make the robot stop afterwards
-                    setStopwatch4(400);
-                    startStopwatch4();
-                    idle.state = MOVE_IDLE;
-                }
-            //}
+                ext.speed_left = 50;
+                ext.speed_right = 50;
+                ext.dir = FWD;
+                ext.move = true;
+                ext.move_value = 300; // 30cm
+                ext.state = MOVE;
+                
+                // Make the robot stop afterwards
+                setStopwatch4(400);
+                startStopwatch4();
+                idle.state = MOVE_IDLE;
+            }
         break;
     }
 }
 
 void behaviourController(void) {
-    // Call all the behaviour tasks:
-/*	behaviour_cruise();
-    behaviour_avoid();
-	behaviour_escape();
 
-    // Execute the commands depending on priority levels:
-	if(escape.state != IDLE) // Highest priority - 3
-		moveCommand(&escape);
-	else if(avoid.state != IDLE) // Priority - 2
-		moveCommand(&avoid);
-	else if(cruise.state != IDLE) // Priority - 1
-		moveCommand(&cruise); 
-	else                     // Lowest priority - 0
-		moveCommand(&STOP);  // Default command - do nothing! 
-							 // In the current implementation this never 
-							 // happens.
-*/
+    if (isAuto) {
+        // Call all the behaviour tasks:
+        behaviour_avoid();
+        behaviour_escape();
+
+        // Execute the commands depending on priority levels:
+        if(escape.state != IDLE) // Highest priority - 3
+            moveCommand(&escape);
+        else if(avoid.state != IDLE) // Priority - 2
+            moveCommand(&avoid);
+        else if(cruise.state != IDLE) // Priority - 1
+            moveCommand(&cruise); 
+        else                     // Lowest priority - 0
+            moveCommand(&STOP);  // Default command - do nothing! 
+                                // In the current implementation this never 
+                                // happens.
+    } 
+
     // Call all the behaviour tasks:
     behaviour_ext();
     behaviour_idle();
 
     if (ext.state != IDLE) {
         moveCommand(&ext);
-     }
+    }
+
 }
 
 int main(void) {

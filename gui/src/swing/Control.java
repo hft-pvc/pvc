@@ -16,6 +16,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import net.miginfocom.swing.MigLayout;
+import rxtx.Connection;
+import swing.Draw.Move;
 /**
  * 
  * 
@@ -26,8 +28,8 @@ public class Control extends JPanel implements MouseListener {
 	Connection connect;
 	JButton stop;
 
-	Control(Connection connect) throws IOException {
-		this.connect = connect;
+	Control() throws IOException {
+		this.connect = Connection.getInstance();
 		this.setLayout(new MigLayout("",
 				"[44px][24px][][44px][][24px][][][][grow][]",
 				"[44px][][][grow]"));
@@ -134,16 +136,20 @@ public class Control extends JPanel implements MouseListener {
 
 		if (e.getComponent().getName().endsWith("up")) {
 			System.err.println("RP6 drive forward!");
-			connect.writeData("2");
+//			connect.writeData("2");
+			Connection.getInstance().setCurMove(Move.FWD);
 		} else if (e.getComponent().getName().endsWith("left")) {
 			System.err.println("RP6 drive left!");
-			connect.writeData("4");
+			Connection.getInstance().setCurMove(Move.LEFT);
+//			connect.writeData("4");
 		} else if (e.getComponent().getName().endsWith("right")) {
 			System.err.println("RP6 drive right!");
-			connect.writeData("5");
+			Connection.getInstance().setCurMove(Move.RIGHT);
+//			connect.writeData("5");
 		} else if (e.getComponent().getName().endsWith("down")) {
 			System.err.println("RP6 drive backwards!");
-			connect.writeData("3");
+//			connect.writeData("3");
+			Connection.getInstance().setCurMove(Move.BWD);
 		}
 
 	}
