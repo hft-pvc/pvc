@@ -4,7 +4,9 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.Image;
+import java.awt.Point;
 import java.awt.Toolkit;
+import java.util.Vector;
 
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
@@ -27,6 +29,7 @@ public class Draw extends JPanel implements Runnable {
 	public enum Direction {
 		LEFT, RIGHT, UP, DOWN, IDLE
 	}
+
 	private String pngPfad = "src/robot.png";
 	private Image robot;
 	JLabel roboter;
@@ -37,81 +40,85 @@ public class Draw extends JPanel implements Runnable {
 	private Connection con = Connection.getInstance();
 	private Move lastMove = Move.FWD;
 	private static final long serialVersionUID = 625962120099128913L;
+	private Vector<Point> points = new Vector<Point>();
 
 	public Draw() {
-		//Muss so sein sonst kann man keine Bild verschieben!!!
+		// Muss so sein sonst kann man keine Bild verschieben!!!
 		this.setLayout(null);
 		//
 		roboter = new JLabel();
 		robot = toolkit.getImage(pngPfad);
 		roboter.setIcon(new ImageIcon(robot));
 		this.add(roboter);
-		roboter.setBounds(positionX-16,positionY-32,37,35);
+		roboter.setBounds(positionX - 16, positionY - 32, 37, 35);
 	}
-	
+
 	public void draw(Move curMove) throws InterruptedException {
 		con.setDraw(false);
-		//if only at the first run true
-		if(con.getDrawNeverCalledBefore()){
+		// if only at the first run true
+		if (con.getDrawNeverCalledBefore()) {
 			System.out.println("EIN MAL");
 			con.setDrawNeverCalledBefore(false);
-			if(curMove == Move.FWD){
+			if (curMove == Move.FWD) {
 				drawUp();
 				this.dir = Direction.UP;
-			}else if (curMove == Move.BWD) {
+			} else if (curMove == Move.BWD) {
 				drawDown();
 				this.dir = Direction.DOWN;
-			}else if (curMove == Move.LEFT) {
+			} else if (curMove == Move.LEFT) {
 				drawLeft();
 				this.dir = Direction.LEFT;
-			}else if (curMove == Move.RIGHT) {
+			} else if (curMove == Move.RIGHT) {
 				drawRight();
 				this.dir = Direction.RIGHT;
 			}
-			//last direction UP or Down
-		}else if (this.dir == Direction.UP || this.dir == Direction.DOWN ) {
-			if(curMove == Move.FWD){
+			// last direction UP or Down
+		} else if (this.dir == Direction.UP || this.dir == Direction.DOWN) {
+			if (curMove == Move.FWD) {
 				drawUp();
-			}else if (curMove == Move.BWD) {
+			} else if (curMove == Move.BWD) {
 				drawDown();
 				this.dir = Direction.DOWN;
-			}else if (curMove == Move.LEFT) {
+			} else if (curMove == Move.LEFT) {
 				drawLeft();
 				this.dir = Direction.LEFT;
-			}else if (curMove == Move.RIGHT) {
+			} else if (curMove == Move.RIGHT) {
 				drawRight();
 				this.dir = Direction.RIGHT;
 			}
-			//last direction left
-		}else if (this.dir == Direction.LEFT) {
-			if(curMove == Move.FWD){
+			// last direction left
+		} else if (this.dir == Direction.LEFT) {
+			if (curMove == Move.FWD) {
 				drawLeft();
-			}else if (curMove == Move.BWD) {
+			} else if (curMove == Move.BWD) {
 				drawRight();
 				this.dir = Direction.LEFT;
-			}else if (curMove == Move.LEFT) {
+			} else if (curMove == Move.LEFT) {
 				drawDown();
 				this.dir = Direction.DOWN;
-			}else if (curMove == Move.RIGHT) {
+			} else if (curMove == Move.RIGHT) {
 				drawUp();
 				this.dir = Direction.UP;
 			}
-			//last direction right
-		}else if (this.dir == Direction.RIGHT) {
-			if(curMove == Move.FWD){
-				drawRight();;
-			}else if (curMove == Move.BWD) {
+			// last direction right
+		} else if (this.dir == Direction.RIGHT) {
+			if (curMove == Move.FWD) {
+				drawRight();
+				;
+			} else if (curMove == Move.BWD) {
 				drawLeft();
 				this.dir = Direction.RIGHT;
-			}else if (curMove == Move.LEFT) {
-				drawUp();;
+			} else if (curMove == Move.LEFT) {
+				drawUp();
+				;
 				this.dir = Direction.UP;
-			}else if (curMove == Move.RIGHT) {
-				drawDown();;
+			} else if (curMove == Move.RIGHT) {
+				drawDown();
+				;
 				this.dir = Direction.DOWN;
 			}
 		}
-	
+
 	}
 
 	private void drawLeft() {
@@ -144,26 +151,33 @@ public class Draw extends JPanel implements Runnable {
 
 	public void drawPoint(int x, int y) {
 		this.setBackground(Color.WHITE);
-		
+
 		Graphics g = this.getGraphics();
-		
+
 		if (g == null) // Don't bother if we've got no Grahphics to work with
-			return; 
-		roboter.setLocation(x-16, y-32);
-
-		g.fillOval(x, y, 5, 5);
-
+			return;
+		
+		Point p1 = new Point();
+		p1.setLocation(x, y);
+		roboter.setLocation(x - 16, y - 32);
+		g.fillOval(p1.x, p1.y, 5, 5);
+		//Draw the old points...
+		for (int i = 0; i < points.size(); i++) {
+			Point p2 = points.get(i);
+			g.fillOval(p2.x, p2.y, 5, 5);
+		}
+		points.add(p1);
 	}
 
 	@Override
 	public void run() {
 		while (true) {
 			try {
-				if(con.getDraw()){
-				draw(con.getCurMove());
+				if (con.getDraw()) {
+					draw(con.getCurMove());
 				}
 				Thread.sleep(500);
-				//con.setDraw(false);
+				// con.setDraw(false);
 			} catch (InterruptedException e) {
 				System.err.println(e.getMessage());
 			}
