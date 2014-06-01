@@ -46,7 +46,7 @@ public class Draw extends JPanel implements Runnable {
 		robot = toolkit.getImage(pngPfad);
 		roboter.setIcon(new ImageIcon(robot));
 		this.add(roboter);
-		roboter.setBounds(positionX-16,positionY-32,50,35);
+		roboter.setBounds(positionX-16,positionY-32,37,35);
 	}
 	
 	public void draw(Move curMove) throws InterruptedException {
@@ -88,7 +88,7 @@ public class Draw extends JPanel implements Runnable {
 				drawLeft();
 			}else if (curMove == Move.BWD) {
 				drawRight();
-				this.dir = Direction.RIGHT;
+				this.dir = Direction.LEFT;
 			}else if (curMove == Move.LEFT) {
 				drawDown();
 				this.dir = Direction.DOWN;
@@ -102,7 +102,7 @@ public class Draw extends JPanel implements Runnable {
 				drawRight();;
 			}else if (curMove == Move.BWD) {
 				drawLeft();
-				this.dir = Direction.LEFT;
+				this.dir = Direction.RIGHT;
 			}else if (curMove == Move.LEFT) {
 				drawUp();;
 				this.dir = Direction.UP;
@@ -151,8 +151,6 @@ public class Draw extends JPanel implements Runnable {
 			return; 
 		roboter.setLocation(x-16, y-32);
 
-		//roboter.validate();
-		//roboter.setBounds(x,y,50,50);
 		g.fillOval(x, y, 5, 5);
 
 	}
