@@ -30,7 +30,7 @@ import swing.Draw.Move;
 public class Control extends JPanel implements MouseListener {
 	Connection connect;
 	JButton stop;
-
+	public boolean draw = false;
 	Control() throws IOException {
 		this.connect = Connection.getInstance();
 		this.setLayout(new MigLayout("",
@@ -161,9 +161,11 @@ public class Control extends JPanel implements MouseListener {
 
 		if (e.getComponent().getName().endsWith("up")) {
 			System.err.println("RP6 drive forward!");
+			Connection.getInstance().setDraw(true);
 //			connect.writeData("2");
 			Connection.getInstance().setCurMove(Move.FWD);
 		} else if (e.getComponent().getName().endsWith("left")) {
+			Connection.getInstance().setDraw(true);
 			System.err.println("RP6 drive left!");
 			Connection.getInstance().setCurMove(Move.LEFT);
 //			connect.writeData("4");

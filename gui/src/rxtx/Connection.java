@@ -20,6 +20,7 @@ import swing.Draw.Move;
 
 public class Connection {
 	String os ;
+	boolean draw = false;
 	CommPortIdentifier serialPortId;
 	Enumeration enumComm;
 	SerialPort serialPort;
@@ -201,7 +202,11 @@ public class Connection {
 	public void setCurMove(Move curMove) {
 		this.curMove = curMove;
 	}
-
+	public void setDraw(boolean draw){
+		this.draw = draw;
+	}public boolean getDraw() {
+		return draw;
+	}
 	class serialPortEventListener implements SerialPortEventListener {
 		public void serialEvent(SerialPortEvent event) {
 			switch (event.getEventType()) {
