@@ -171,14 +171,14 @@ public class Control extends JPanel implements MouseListener {
 //			connect.writeData("4");
 		} else if (e.getComponent().getName().endsWith("right")) {
 			System.err.println("RP6 drive right!");
+			Connection.getInstance().setDraw(true);
 			Connection.getInstance().setCurMove(Move.RIGHT);
 //			connect.writeData("5");
 		} else if (e.getComponent().getName().endsWith("down")) {
 			System.err.println("RP6 drive backwards!");
+			Connection.getInstance().setDraw(true);
 //			connect.writeData("3");
 			Connection.getInstance().setCurMove(Move.BWD);
-		}else if (e.getComponent().getName().endsWith("speed")) {
-			System.err.println("HURE");
 		}
 	}
 

@@ -21,6 +21,7 @@ import swing.Draw.Move;
 public class Connection {
 	String os ;
 	boolean draw = false;
+	private boolean drawNeverCalledBefore = true;
 	CommPortIdentifier serialPortId;
 	Enumeration enumComm;
 	SerialPort serialPort;
@@ -206,6 +207,13 @@ public class Connection {
 		this.draw = draw;
 	}public boolean getDraw() {
 		return draw;
+	}
+	public boolean getDrawNeverCalledBefore() {
+		return drawNeverCalledBefore;
+	}
+
+	public void setDrawNeverCalledBefore(boolean drawNeverCalledBefore) {
+		this.drawNeverCalledBefore = drawNeverCalledBefore;
 	}
 	class serialPortEventListener implements SerialPortEventListener {
 		public void serialEvent(SerialPortEvent event) {

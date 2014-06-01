@@ -34,7 +34,6 @@ public class Draw extends JPanel implements Runnable {
 	private int positionX = 450;
 	private int positionY = 350;
 	private Direction dir = Direction.UP;
-	private boolean drawNeverCalledBefore = true;
 	private Connection con = Connection.getInstance();
 	private Move lastMove = Move.FWD;
 	private static final long serialVersionUID = 625962120099128913L;
@@ -49,17 +48,70 @@ public class Draw extends JPanel implements Runnable {
 		this.add(roboter);
 		roboter.setBounds(positionX-16,positionY-32,50,35);
 	}
+	
 	public void draw(Move curMove) throws InterruptedException {
-	if(curMove == Move.FWD){
-		if(dir == Direction.IDLE){
-			
-			drawUp();
-		}else if (dir == Direction.UP) {
-			drawUp();
-		}else if (dir == Direction.LEFT) {
-			drawLeft();
+		con.setDraw(false);
+		//if only at the first run true
+		if(con.getDrawNeverCalledBefore()){
+			System.out.println("EIN MAL");
+			con.setDrawNeverCalledBefore(false);
+			if(curMove == Move.FWD){
+				drawUp();
+				this.dir = Direction.UP;
+			}else if (curMove == Move.BWD) {
+				drawDown();
+				this.dir = Direction.DOWN;
+			}else if (curMove == Move.LEFT) {
+				drawLeft();
+				this.dir = Direction.LEFT;
+			}else if (curMove == Move.RIGHT) {
+				drawRight();
+				this.dir = Direction.RIGHT;
+			}
+			//last direction UP or Down
+		}else if (this.dir == Direction.UP || this.dir == Direction.DOWN ) {
+			if(curMove == Move.FWD){
+				drawUp();
+			}else if (curMove == Move.BWD) {
+				drawDown();
+				this.dir = Direction.DOWN;
+			}else if (curMove == Move.LEFT) {
+				drawLeft();
+				this.dir = Direction.LEFT;
+			}else if (curMove == Move.RIGHT) {
+				drawRight();
+				this.dir = Direction.RIGHT;
+			}
+			//last direction left
+		}else if (this.dir == Direction.LEFT) {
+			if(curMove == Move.FWD){
+				drawLeft();
+			}else if (curMove == Move.BWD) {
+				drawRight();
+				this.dir = Direction.RIGHT;
+			}else if (curMove == Move.LEFT) {
+				drawDown();
+				this.dir = Direction.DOWN;
+			}else if (curMove == Move.RIGHT) {
+				drawUp();
+				this.dir = Direction.UP;
+			}
+			//last direction right
+		}else if (this.dir == Direction.RIGHT) {
+			if(curMove == Move.FWD){
+				drawRight();;
+			}else if (curMove == Move.BWD) {
+				drawLeft();
+				this.dir = Direction.LEFT;
+			}else if (curMove == Move.LEFT) {
+				drawUp();;
+				this.dir = Direction.UP;
+			}else if (curMove == Move.RIGHT) {
+				drawDown();;
+				this.dir = Direction.DOWN;
+			}
 		}
-	}
+	
 	}
 
 	private void drawLeft() {
