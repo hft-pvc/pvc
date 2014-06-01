@@ -50,7 +50,7 @@ public class Draw extends JPanel implements Runnable {
 		robot = toolkit.getImage(pngPfad);
 		roboter.setIcon(new ImageIcon(robot));
 		this.add(roboter);
-		roboter.setBounds(positionX - 16, positionY - 32, 37, 35);
+		roboter.setBounds(positionX - 16, positionY - 32, 37, 32);
 	}
 
 	public void draw(Move curMove) throws InterruptedException {
@@ -157,16 +157,22 @@ public class Draw extends JPanel implements Runnable {
 		if (g == null) // Don't bother if we've got no Grahphics to work with
 			return;
 		
-		Point p1 = new Point();
-		p1.setLocation(x, y);
+		Point curPoint = new Point();
+		curPoint.setLocation(x, y);
+		
+		//move the robot
 		roboter.setLocation(x - 16, y - 32);
-		g.fillOval(p1.x, p1.y, 5, 5);
+		
+		//draw the curPoint
+		g.fillOval(curPoint.x, curPoint.y, 5, 5);
+		
 		//Draw the old points...
 		for (int i = 0; i < points.size(); i++) {
-			Point p2 = points.get(i);
-			g.fillOval(p2.x, p2.y, 5, 5);
+			Point p = points.get(i);
+			g.fillOval(p.x, p.y, 5, 5);
 		}
-		points.add(p1);
+		//Add the curPoint to the vector
+		points.add(curPoint);
 	}
 
 	@Override
