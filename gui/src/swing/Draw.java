@@ -1,7 +1,6 @@
 package swing;
 
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Point;
@@ -54,7 +53,6 @@ public class Draw extends JPanel implements Runnable {
 	}
 
 	public void draw(Move curMove) throws InterruptedException {
-		con.setDraw(false);
 		// if only at the first run true
 		if (con.getDrawNeverCalledBefore()) {
 			System.out.println("EIN MAL");
@@ -104,17 +102,14 @@ public class Draw extends JPanel implements Runnable {
 		} else if (this.dir == Direction.RIGHT) {
 			if (curMove == Move.FWD) {
 				drawRight();
-				;
 			} else if (curMove == Move.BWD) {
 				drawLeft();
 				this.dir = Direction.RIGHT;
 			} else if (curMove == Move.LEFT) {
 				drawUp();
-				;
 				this.dir = Direction.UP;
 			} else if (curMove == Move.RIGHT) {
 				drawDown();
-				;
 				this.dir = Direction.DOWN;
 			}
 		}
@@ -122,28 +117,24 @@ public class Draw extends JPanel implements Runnable {
 	}
 
 	private void drawLeft() {
-		System.out.println(" ### Drawing Line LEFT ###");
 		drawPoint(positionX, positionY);
 		positionX--;
 		drawPoint(positionX, positionY);
 	}
 
 	private void drawRight() {
-		System.out.println(" ### Drawing Line RIGHT ###");
 		drawPoint(positionX, positionY);
 		positionX++;
 		drawPoint(positionX, positionY);
 	}
 
 	private void drawUp() {
-		System.out.println(" ### Drawing Line UP ###");
 		drawPoint(positionX, positionY);
 		positionY--;
 		drawPoint(positionX, positionY);
 	}
 
 	private void drawDown() {
-		System.out.println(" ### Drawing Line DOWN ###");
 		drawPoint(positionX, positionY);
 		positionY++;
 		drawPoint(positionX, positionY);
@@ -183,7 +174,6 @@ public class Draw extends JPanel implements Runnable {
 					draw(con.getCurMove());
 				}
 				Thread.sleep(500);
-				// con.setDraw(false);
 			} catch (InterruptedException e) {
 				System.err.println(e.getMessage());
 			}

@@ -20,7 +20,6 @@ import javax.swing.event.ChangeListener;
 
 import net.miginfocom.swing.MigLayout;
 import rxtx.Connection;
-import swing.Draw.Move;
 /**
  * 
  * 
@@ -82,7 +81,7 @@ public class Control extends JPanel implements MouseListener {
 				Connection.writeData("0");
 			}
 		});
-		this.add(start, "cell 0 0, hmax 25px, wmin 80px, alignx left,aligny bottom");
+		this.add(start, "cell 0 0, hmax 25px, wmin 93px, alignx left,aligny bottom");
 
 		// Button stop
 		JButton stop = new JButton();
@@ -97,7 +96,7 @@ public class Control extends JPanel implements MouseListener {
 				Connection.writeData("1");
 			}
 		});
-		this.add(stop, "cell 0 1, hmax 25px,   alignx left,aligny bottom");
+		this.add(stop, "cell 0 1, hmax 25px, wmin 93px,   alignx left,aligny bottom");
 		
 		// Button automatic mode
 		JButton automatic = new JButton();
@@ -112,7 +111,7 @@ public class Control extends JPanel implements MouseListener {
 				Connection.writeData("6");
 			}
 		});
-		this.add(automatic, "cell 0 2, hmax 25px,  alignx left,aligny top");
+		this.add(automatic, "cell 0 2, hmax 25px, wmin 93px,  alignx left,aligny top");
 		
 		
 		//Speed Slider 0 = min wert 100 = max wert 50 = default wert
@@ -124,16 +123,14 @@ public class Control extends JPanel implements MouseListener {
 		speed.setName("speed");
 		speed.setPaintTicks( true );
 		speed.setMajorTickSpacing(30 );
-		this.add(speed, "cell 0 3 ,  alignx left,aligny bottom");
+		this.add(speed, "cell 0 4,  alignx left,aligny bottom, grow");
 		
 		speed.addChangeListener(new ChangeListener() {
 			
 			@Override
 			public void stateChanged(ChangeEvent arg0) {
-				
-				// Hier Geschwindichkeit auslesen und setzen!!!
-				System.out.println(speed.getValue());
-				
+				connect.writeData("101");
+				connect.writeData(new Integer(speed.getValue()).toString());
 			}
 		});
 	}
@@ -161,24 +158,16 @@ public class Control extends JPanel implements MouseListener {
 
 		if (e.getComponent().getName().endsWith("up")) {
 			System.err.println("RP6 drive forward!");
-			Connection.getInstance().setDraw(true);
-//			connect.writeData("2");
-			Connection.getInstance().setCurMove(Move.FWD);
+			connect.writeData("2");
 		} else if (e.getComponent().getName().endsWith("left")) {
-			Connection.getInstance().setDraw(true);
 			System.err.println("RP6 drive left!");
-			Connection.getInstance().setCurMove(Move.LEFT);
-//			connect.writeData("4");
+			connect.writeData("4");
 		} else if (e.getComponent().getName().endsWith("right")) {
 			System.err.println("RP6 drive right!");
-			Connection.getInstance().setDraw(true);
-			Connection.getInstance().setCurMove(Move.RIGHT);
-//			connect.writeData("5");
+			connect.writeData("5");
 		} else if (e.getComponent().getName().endsWith("down")) {
 			System.err.println("RP6 drive backwards!");
-			Connection.getInstance().setDraw(true);
-//			connect.writeData("3");
-			Connection.getInstance().setCurMove(Move.BWD);
+			connect.writeData("3");
 		}
 	}
 

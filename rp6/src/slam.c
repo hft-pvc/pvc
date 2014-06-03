@@ -23,7 +23,6 @@ behaviour_command_t STOP = {0, 0, FWD, false, false, 0, IDLE};
 #define CRUISE_SPEED_FWD    100 //40 // 100 Default speed when no obstacles are detected!
 behaviour_command_t cruise = {CRUISE_SPEED_FWD, CRUISE_SPEED_FWD, FWD, false, false, 1, MOVE};
 
-
 unsigned isAuto = false;
 const char* direction[4] = {"FWD", "BWD", "LEFT", "RIGHT"};
 int lastState = 0;
@@ -40,8 +39,7 @@ void mywrite(const char *pstring, int state)
 
 void acsStateChanged(void)
 {
-    writeString_P("ACS status hat sich geändert!   L: ");
-    if(obstacle_left)  // Hindernis links
+    /*if(obstacle_left)  // Hindernis links
         writeChar('o');
     else
         writeChar(' ');
@@ -52,7 +50,7 @@ void acsStateChanged(void)
         writeChar(' ');
     if(obstacle_left && obstacle_right) // Mitte?
         writeString_P("   MITTE!");
-    writeChar('\n');
+    writeChar('\n');*/
     statusLEDs.LED6 = obstacle_left && obstacle_right; // Mitte?
     statusLEDs.LED3 = statusLEDs.LED6;
     statusLEDs.LED5 = obstacle_left;     // Hindernis links
@@ -65,8 +63,10 @@ void acsStateChanged(void)
 void moveCommand(behaviour_command_t* cmd) {
     if(cmd->move_value > 0) {
         if (cmd->rotate) {
+            writeString_P("7\n");
             rotate(cmd->speed_left, cmd->dir, cmd->move_value, false);
         } else if (cmd->move) {
+            writeString_P("6\n");
             move(cmd->speed_left, cmd->dir, DIST_MM(cmd->move_value), false);
         }
         // clear move value - the move commands are only given once 
@@ -80,6 +80,7 @@ void moveCommand(behaviour_command_t* cmd) {
     else if (isMovementComplete()) { // movement complete? -> clear flags!
         cmd->rotate = false;
         cmd->move = false;
+        writeString_P("5\n");
     }
 }
 
@@ -460,8 +461,6 @@ void behaviour_idle(void) {
         break;
         case NEXT_FWD:
             if (!ext.rotate) {
-                mywrite("Moving after turning LEFT\n", NEXT_FWD);
-
                 ext.speed_left = 50;
                 ext.speed_right = 50;
                 ext.dir = FWD;
@@ -475,6 +474,16 @@ void behaviour_idle(void) {
                 idle.state = MOVE_IDLE;
             }
         break;
+    }
+}
+
+void change_speed(void) {
+    uint8_t c;
+
+    if (getBufferLength()) {
+        for (int i = 0; i < 3; i++) {
+            c += readChar();
+        }
     }
 }
 

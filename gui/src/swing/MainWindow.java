@@ -67,14 +67,14 @@ public class MainWindow {
 	 * @throws IOException 
 	 */
 	private void initialize() throws IOException {
-		Dimension min = new Dimension(950, 745);
+		Dimension min = new Dimension(950, 755);
 		frame = new JFrame();
-		frame.getContentPane().setBackground(Color.BLACK);
+//		frame.getContentPane().setBackground(Color.BLACK);
 		frame.setMinimumSize(min);
 		frame.getContentPane().setEnabled(false);
 		frame.setBounds(100, 100, 450, 300);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setTitle("PVC Projekt: SLAM by Juhulian Rilli, Tobias Fleischer, Jan Hoeppner, Felix Van Gunsteren");
+		frame.setTitle("PVC Projekt: SLAM by Julian Rilli, Tobias Fleischer, Jan Hoeppner, Felix Van Gunsteren");
 		frame.getContentPane().setLayout(new MigLayout("", "[grow][grow][]", "[grow][grow]"));
 		
 		/**
@@ -115,9 +115,9 @@ public class MainWindow {
 		 * ControlArea
 		 */
 		Control control = new Control();
-		control.setBackground(Color.BLACK);
+//		control.setBackground(Color.BLACK);
 		//control.setBackground(UIManager.getColor("Button.background"));
-		frame.getContentPane().add(control, "wmax 220px,hmax 200px,  cell 2 1");
+		frame.getContentPane().add(control, "wmax 230px,hmax 200px,  cell 2 1");
 
 
 		/**
