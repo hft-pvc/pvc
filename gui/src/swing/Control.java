@@ -117,8 +117,10 @@ public class Control extends JPanel implements MouseListener {
 		//Speed Slider 0 = min wert 100 = max wert 50 = default wert
 		JLabel speedL = new JLabel();
 		speedL.setName("Speed:");
-		speedL.setText("Speed:");
+		speedL.setText("  Speed:");
 		this.add(speedL, "cell 0 3 ,  alignx left,aligny top");
+		final JLabel getOut = new JLabel("50");
+		this.add(getOut, "cell 0 3");
 		final JSlider speed = new JSlider(0, 100, 50 );
 		speed.setName("speed");
 		speed.setPaintTicks( true );
@@ -129,6 +131,7 @@ public class Control extends JPanel implements MouseListener {
 			
 			@Override
 			public void stateChanged(ChangeEvent arg0) {
+				getOut.setText(""+speed.getValue());
 				connect.writeData("101");
 				connect.writeData(new Integer(speed.getValue()).toString());
 			}
