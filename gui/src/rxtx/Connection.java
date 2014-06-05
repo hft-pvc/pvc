@@ -154,15 +154,19 @@ public class Connection {
 		switch (new Integer(str)) {
 		case 0:
 			this.curMove = Move.LEFT;
+			System.out.println(" to turn left");
 			break;
 		case 1:
 			this.curMove = Move.RIGHT;
+			System.out.println(" take a right!");
 			break;
 		case 2:
 			this.curMove = Move.FWD;
+			System.out.println("I drive FWD");
 			break;
 		case 3:
 			this.curMove = Move.BWD;
+			System.out.println("I drive BWD");
 			break;
 		case 4:
 			this.curMove = Move.IDLE;
@@ -170,6 +174,7 @@ public class Connection {
 		case 5:
 			setDraw(false);
 			this.curMove = Move.STOP;
+			System.out.println("I stop");
 			break;
 		case 6:
 			setDraw(true);
