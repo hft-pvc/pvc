@@ -7,10 +7,8 @@ import gnu.io.SerialPortEvent;
 import gnu.io.SerialPortEventListener;
 import gnu.io.UnsupportedCommOperationException;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.Enumeration;
@@ -39,6 +37,10 @@ public class Connection {
 	
 	public static final int TIME_OUT = 2000;
 
+	final static int NEW_LINE_ASCII = 10;
+	
+	private String logTxt = new String();
+	
 	private Move curMove = Move.IDLE;
 
 	private static Connection INSTANCE = new Connection();
@@ -139,51 +141,61 @@ public class Connection {
 	}
 
 	void serialPortDataAvailable() {
-
 		String str = new String();
-		BufferedReader br = new BufferedReader(new InputStreamReader(
-				inputStream));
-
+		
 		try {
-			str = br.readLine();
+			byte singleData = (byte)inputStream.read();
+			
+			if (singleData != NEW_LINE_ASCII) {
+				str = new String(new  byte[] {singleData});
+				logTxt += str;
+			} else {
+				System.out.println(logTxt);
+				logTxt = new String();
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+
 		
-		System.out.println(str);
-		switch (new Integer(str)) {
-		case 0:
-			this.curMove = Move.LEFT;
-			break;
-		case 1:
-			this.curMove = Move.RIGHT;
-			break;
-		case 2:
+/*		if (logTxt.equals("##move##")) {
 			this.curMove = Move.FWD;
-			break;
-		case 3:
-			this.curMove = Move.BWD;
-			break;
-		case 4:
-			this.curMove = Move.IDLE;
-			break;
-		case 5:
+			setDraw(true);
+		} else if (logTxt.equals("##rotate##")) {
+			setDraw(false);
+		} else if (logTxt.equals("##stop##")) {
 			setDraw(false);
 			this.curMove = Move.STOP;
-			break;
-		case 6:
-			setDraw(true);
-			this.curMove = Move.FWD;
-			break;
-		case 7:
-			setDraw(false);
-//			this.curMove = Move.STOP;
-			break;
-		default:
-			break;
+		} else {*/
+		
+			switch (new Integer(logTxt)) {
+			case 0:
+				System.out.println("LEFT !!!!!!!!!!!!!!!!!!!!!");
+				this.curMove = Move.LEFT;
+				setDraw(true);
+				break;
+			case 1:
+				this.curMove = Move.RIGHT;
+				setDraw(true);
+				break;
+			case 2:
+				this.curMove = Move.FWD;
+				setDraw(true);
+				break;
+			case 3:
+				this.curMove = Move.BWD;
+				setDraw(true);
+				break;
+			case 4:
+				this.curMove = Move.IDLE;
+				break;
+			case 5:
+				setDraw(false);
+			default:
+				break;
+			}
 		}
-
-	}
+//	}
 
 	public static synchronized void writeData(String data) {
 		try {

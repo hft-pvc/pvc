@@ -124,7 +124,8 @@ public class Control extends JPanel implements MouseListener {
 		final JSlider speed = new JSlider(0, 100, 50 );
 		speed.setName("speed");
 		speed.setPaintTicks( true );
-		speed.setMajorTickSpacing(30 );
+		speed.setSnapToTicks(true);
+		speed.setMajorTickSpacing(20);
 		this.add(speed, "cell 0 4,  alignx left,aligny bottom, grow");
 		
 		speed.addChangeListener(new ChangeListener() {

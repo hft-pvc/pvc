@@ -37,14 +37,11 @@ public class Draw extends JPanel implements Runnable {
 	private int positionY = 350;
 	private Direction dir = Direction.UP;
 	private Connection con = Connection.getInstance();
-	private Move lastMove = Move.FWD;
 	private static final long serialVersionUID = 625962120099128913L;
 	private Vector<Point> points = new Vector<Point>();
 
 	public Draw() {
-		// Muss so sein sonst kann man keine Bild verschieben!!!
-		this.setLayout(null);
-		//
+		this.setLayout(null); // Set layout to null to disable standard layout
 		roboter = new JLabel();
 		robot = toolkit.getImage(pngPfad);
 		roboter.setIcon(new ImageIcon(robot));
@@ -55,7 +52,6 @@ public class Draw extends JPanel implements Runnable {
 	public void draw(Move curMove) throws InterruptedException {
 		// if only at the first run true
 		if (con.getDrawNeverCalledBefore()) {
-			System.out.println("EIN MAL");
 			con.setDrawNeverCalledBefore(false);
 			if (curMove == Move.FWD) {
 				drawUp();
@@ -66,9 +62,11 @@ public class Draw extends JPanel implements Runnable {
 			} else if (curMove == Move.LEFT) {
 				drawLeft();
 				this.dir = Direction.LEFT;
+				con.setDraw(false);
 			} else if (curMove == Move.RIGHT) {
 				drawRight();
 				this.dir = Direction.RIGHT;
+				con.setDraw(false);
 			}
 			// last direction UP or Down
 		} else if (this.dir == Direction.UP || this.dir == Direction.DOWN) {
@@ -79,10 +77,13 @@ public class Draw extends JPanel implements Runnable {
 				this.dir = Direction.DOWN;
 			} else if (curMove == Move.LEFT) {
 				drawLeft();
+				System.out.println("Set dir after drawing..");
 				this.dir = Direction.LEFT;
+				con.setDraw(false);
 			} else if (curMove == Move.RIGHT) {
 				drawRight();
 				this.dir = Direction.RIGHT;
+				con.setDraw(false);
 			}
 			// last direction left
 		} else if (this.dir == Direction.LEFT) {
@@ -94,9 +95,11 @@ public class Draw extends JPanel implements Runnable {
 			} else if (curMove == Move.LEFT) {
 				drawDown();
 				this.dir = Direction.DOWN;
+				con.setDraw(false);
 			} else if (curMove == Move.RIGHT) {
 				drawUp();
 				this.dir = Direction.UP;
+				con.setDraw(false);
 			}
 			// last direction right
 		} else if (this.dir == Direction.RIGHT) {
@@ -108,12 +111,13 @@ public class Draw extends JPanel implements Runnable {
 			} else if (curMove == Move.LEFT) {
 				drawUp();
 				this.dir = Direction.UP;
+				con.setDraw(false);
 			} else if (curMove == Move.RIGHT) {
 				drawDown();
 				this.dir = Direction.DOWN;
+				con.setDraw(false);
 			}
 		}
-
 	}
 
 	private void drawLeft() {
