@@ -5,8 +5,11 @@ import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.Toolkit;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Vector;
 
+import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -29,7 +32,7 @@ public class Draw extends JPanel implements Runnable {
 		LEFT, RIGHT, UP, DOWN, IDLE
 	}
 
-	private String pngPfad = "src/robot.png";
+	private String pngPfad = "images/robot.png";
 	private Image robot;
 	JLabel roboter;
 	Toolkit toolkit = Toolkit.getDefaultToolkit();
@@ -37,13 +40,17 @@ public class Draw extends JPanel implements Runnable {
 	private int positionY = 350;
 	private Direction dir = Direction.UP;
 	private Connection con = Connection.getInstance();
+	private Move lastMove = Move.FWD;
 	private static final long serialVersionUID = 625962120099128913L;
 	private Vector<Point> points = new Vector<Point>();
 
-	public Draw() {
-		this.setLayout(null); // Set layout to null to disable standard layout
+	public Draw() throws IOException {
+		// Muss so sein sonst kann man keine Bild verschieben!!!
+		this.setLayout(null);
+		//
 		roboter = new JLabel();
-		robot = toolkit.getImage(pngPfad);
+		InputStream is = getClass().getResourceAsStream(pngPfad);
+		robot = ImageIO.read(is);
 		roboter.setIcon(new ImageIcon(robot));
 		this.add(roboter);
 		roboter.setBounds(positionX - 16, positionY - 32, 37, 32);
@@ -52,6 +59,7 @@ public class Draw extends JPanel implements Runnable {
 	public void draw(Move curMove) throws InterruptedException {
 		// if only at the first run true
 		if (con.getDrawNeverCalledBefore()) {
+			System.out.println("EIN MAL");
 			con.setDrawNeverCalledBefore(false);
 			if (curMove == Move.FWD) {
 				drawUp();
@@ -77,7 +85,6 @@ public class Draw extends JPanel implements Runnable {
 				this.dir = Direction.DOWN;
 			} else if (curMove == Move.LEFT) {
 				drawLeft();
-				System.out.println("Set dir after drawing..");
 				this.dir = Direction.LEFT;
 				con.setDraw(false);
 			} else if (curMove == Move.RIGHT) {
@@ -118,6 +125,7 @@ public class Draw extends JPanel implements Runnable {
 				con.setDraw(false);
 			}
 		}
+
 	}
 
 	private void drawLeft() {
