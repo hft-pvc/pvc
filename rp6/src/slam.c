@@ -26,6 +26,8 @@ behaviour_command_t cruise = {CRUISE_SPEED_FWD, CRUISE_SPEED_FWD, FWD, false, fa
 unsigned isAuto = false;
 const char* direction[4] = {"FWD", "BWD", "LEFT", "RIGHT"};
 int lastState = 0;
+uint16_t last_dist = 0;
+unsigned isMoving = false;
 
 void mywrite(const char *pstring, int state)
 {
@@ -39,18 +41,6 @@ void mywrite(const char *pstring, int state)
 
 void acsStateChanged(void)
 {
-    /*if(obstacle_left)  // Hindernis links
-        writeChar('o');
-    else
-        writeChar(' ');
-    writeString_P(" | R: ");
-    if(obstacle_right) // Hindernis rechts
-        writeChar('o');
-    else
-        writeChar(' ');
-    if(obstacle_left && obstacle_right) // Mitte?
-        writeString_P("   MITTE!");
-    writeChar('\n');*/
     statusLEDs.LED6 = obstacle_left && obstacle_right; // Mitte?
     statusLEDs.LED3 = statusLEDs.LED6;
     statusLEDs.LED5 = obstacle_left;     // Hindernis links
@@ -63,15 +53,16 @@ void acsStateChanged(void)
 void moveCommand(behaviour_command_t* cmd) {
     if(cmd->move_value > 0) {
         if (cmd->rotate) {
-            writeString_P("7\n");
             rotate(cmd->speed_left, cmd->dir, cmd->move_value, false);
         } else if (cmd->move) {
-            writeString_P("6\n");
+            last_dist = DIST_MM(cmd->move_value); // store the used move_value for late evaluation
+            isMoving = true;
             move(cmd->speed_left, cmd->dir, DIST_MM(cmd->move_value), false);
         }
         // clear move value - the move commands are only given once 
         // and then runs in background
         cmd->move_value = 0; 
+        cmd->speed_left = 0;
     }
     else if (!(cmd->move || cmd->rotate)) {
         changeDirection(cmd->dir);
@@ -80,7 +71,6 @@ void moveCommand(behaviour_command_t* cmd) {
     else if (isMovementComplete()) { // movement complete? -> clear flags!
         cmd->rotate = false;
         cmd->move = false;
-        writeString_P("5\n");
     }
 }
 
@@ -112,6 +102,7 @@ void behaviour_escape(void)
 		case IDLE: 
 		break;
 		case ESCAPE_FRONT:
+            writeString_P("3\n");
 			escape.speed_left = ESCAPE_SPEED_BWD;
 			escape.dir = BWD;
 			escape.move = true;
@@ -128,12 +119,14 @@ void behaviour_escape(void)
 				escape.speed_left = ESCAPE_SPEED_ROTATE;
 				if(bump_count > 3)
 				{
+                    writeString_P("1");
 					escape.move_value = 45; //100;
 					escape.dir = RIGHT;
 					bump_count = 0;
 				}
 				else 
 				{
+                    writeString_P("0");
 					escape.dir = LEFT;
 					escape.move_value = 20; //70;
 				}
@@ -142,6 +135,7 @@ void behaviour_escape(void)
 			}
 		break;
 		case ESCAPE_LEFT:
+            writeString_P("3\n");
 			escape.speed_left = ESCAPE_SPEED_BWD;
 			escape.dir 	= BWD;
 			escape.move = true;
@@ -155,6 +149,7 @@ void behaviour_escape(void)
 		case ESCAPE_LEFT_WAIT:
 			if(!escape.move) // Wait for movement to be completed
 			{
+                writeString_P("1\n");
 				escape.speed_left = ESCAPE_SPEED_ROTATE;
 				escape.dir = RIGHT;
 				escape.rotate = true;
@@ -169,6 +164,7 @@ void behaviour_escape(void)
 			}
 		break;
 		case ESCAPE_RIGHT:	
+            writeString_P("3\n");
 			escape.speed_left = ESCAPE_SPEED_BWD;
 			escape.dir 	= BWD;
 			escape.move = true;
@@ -182,6 +178,7 @@ void behaviour_escape(void)
 		case ESCAPE_RIGHT_WAIT:
 			if(!escape.move) // Wait for movement to be completed
 			{ 
+                writeString_P("0\n");
 				escape.speed_left = ESCAPE_SPEED_ROTATE;		
 				escape.dir = LEFT;
 				escape.rotate = true;
@@ -336,21 +333,20 @@ void behaviour_ext(void) {
     if(getBufferLength())
     {
         uint8_t a = readChar();
-        if(a == 10)
-            return;
+        if(a == 10) return; // Ignore line-feed (LF)
 
         a -= 48;
-        if(a>9)
-            return;
+
+        if(a>9) return; // Only accept codes 0-9
+
         switch(a)
         {
             case 0: // IDLE
-                writeString_P("4");
+                writeString_P("4\n");
                 ext.state = IDLE;
                 break;
             case 1: // STOP
-                writeString_P("5");
-                writeString_P("\n");
+                writeString_P("5\n");
                 // Stop everything and disable the auto mode
                 
                 isAuto = false;
@@ -376,8 +372,7 @@ void behaviour_ext(void) {
                 cruise.state = IDLE;  
                 break;
             case 2: // FWD
-                writeString_P("2");
-                writeString_P("\n");
+                writeString_P("2\n");
                 ext.speed_left = 50;
                 ext.speed_right = 50;
                 ext.dir = FWD;
@@ -391,8 +386,7 @@ void behaviour_ext(void) {
                 idle.state = MOVE_IDLE;
                 break;
             case 3: // BWD
-                writeString_P("3");
-                writeString_P("\n");
+                writeString_P("3\n");
                 ext.speed_left = 50;
                 ext.speed_right = 50;
                 ext.dir = BWD;
@@ -406,8 +400,8 @@ void behaviour_ext(void) {
                 idle.state = MOVE_IDLE;
                 break;
             case 4: // LEFT
-                writeString_P("0");
-                writeString_P("\n");
+                writeString_P("5\n");
+                writeString_P("0\n");
                 ext.speed_left = 50;
                 ext.dir = LEFT;
                 ext.rotate = true;
@@ -420,8 +414,7 @@ void behaviour_ext(void) {
                 idle.state = NEXT_FWD;
                 break;
             case 5: // RIGHT
-                writeString_P("1");
-                writeString_P("\n");
+                writeString_P("1\n");
                 ext.speed_left = 50;
                 ext.dir = RIGHT;
                 ext.rotate = true;
@@ -434,8 +427,15 @@ void behaviour_ext(void) {
                 idle.state = NEXT_FWD;
                 break;
             case 6:
+                // Toggle Auto-Mode
                 isAuto = !isAuto;
-                writeString_P("RP6 in auto mode");
+
+                /*
+                if (isAuto) {
+                    writeString_P("##auto##\n");
+                } else {
+                    writeString_P("##manual##\n");
+                }*/
 
                 // initial cruise settings
                 cruise.speed_left = CRUISE_SPEED_FWD;
@@ -461,6 +461,7 @@ void behaviour_idle(void) {
         break;
         case NEXT_FWD:
             if (!ext.rotate) {
+                writeString_P("2\n");
                 ext.speed_left = 50;
                 ext.speed_right = 50;
                 ext.dir = FWD;
@@ -489,8 +490,8 @@ void change_speed(void) {
 
 void behaviourController(void) {
 
+    // Call all the behaviour tasks for auto-mode
     if (isAuto) {
-        // Call all the behaviour tasks:
         behaviour_avoid();
         behaviour_escape();
 
@@ -499,15 +500,17 @@ void behaviourController(void) {
             moveCommand(&escape);
         else if(avoid.state != IDLE) // Priority - 2
             moveCommand(&avoid);
-        else if(cruise.state != IDLE) // Priority - 1
+        else if(cruise.state != IDLE) { // Priority - 1
+            writeString_P("2\n");
             moveCommand(&cruise); 
+        }
         else                     // Lowest priority - 0
             moveCommand(&STOP);  // Default command - do nothing! 
                                 // In the current implementation this never 
                                 // happens.
     } 
 
-    // Call all the behaviour tasks:
+    // Always check for external commands
     behaviour_ext();
     behaviour_idle();
 
@@ -515,6 +518,10 @@ void behaviourController(void) {
         moveCommand(&ext);
     }
 
+    if (mleft_dist >= last_dist && isMoving) {
+        isMoving = false;
+        writeString_P("5\n");
+    }
 }
 
 int main(void) {
