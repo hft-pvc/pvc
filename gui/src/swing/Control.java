@@ -78,7 +78,7 @@ public class Control extends JPanel implements MouseListener {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				System.err.println("RP6 go!");
-				Connection.writeData("0");
+				Connection.writeData("/s");
 			}
 		});
 		this.add(start, "cell 0 0, hmax 25px, wmin 93px, alignx left,aligny bottom");

@@ -150,7 +150,6 @@ public class Connection {
 				str = new String(new  byte[] {singleData});
 				logTxt += str;
 			} else {
-				System.out.println(logTxt);
 				logTxt = new String();
 			}
 		} catch (IOException e) {
