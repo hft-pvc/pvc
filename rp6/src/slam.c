@@ -20,8 +20,8 @@ typedef struct {
 
 behaviour_command_t STOP = {0, 0, FWD, false, false, 0, IDLE};
 
-#define CRUISE_SPEED_FWD    100 //40 // 100 Default speed when no obstacles are detected!
-behaviour_command_t cruise = {CRUISE_SPEED_FWD, CRUISE_SPEED_FWD, FWD, false, false, 1, MOVE};
+#define CRUISE_SPEED_FWD    80 //40 // 100 Default speed when no obstacles are detected!
+behaviour_command_t cruise = {CRUISE_SPEED_FWD, CRUISE_SPEED_FWD, FWD, false, false, 0, MOVE};
 
 unsigned isAuto = false;
 const char* direction[4] = {"FWD", "BWD", "LEFT", "RIGHT"};
@@ -120,7 +120,7 @@ void behaviour_escape(void)
 				if(bump_count > 3)
 				{
                     writeString_P("1");
-					escape.move_value = 45; //100;
+					escape.move_value = 90; //100;
 					escape.dir = RIGHT;
 					bump_count = 0;
 				}
@@ -128,7 +128,7 @@ void behaviour_escape(void)
 				{
                     writeString_P("0");
 					escape.dir = LEFT;
-					escape.move_value = 20; //70;
+					escape.move_value = 90; //70;
 				}
 				escape.rotate = true;
 				escape.state = ESCAPE_WAIT_END;
@@ -155,11 +155,11 @@ void behaviour_escape(void)
 				escape.rotate = true;
 				if(bump_count > 3)
 				{
-					escape.move_value = 60; //110;
+					escape.move_value = 90; //110;
 					bump_count = 0;
 				}
 				else
-					escape.move_value = 20; //80;
+					escape.move_value = 90; //80;
 				escape.state = ESCAPE_WAIT_END;
 			}
 		break;
@@ -193,8 +193,10 @@ void behaviour_escape(void)
 			}
 		break;
 		case ESCAPE_WAIT_END:
-			if(!(escape.move || escape.rotate)) // Wait for movement/rotation to be completed
+			if(!(escape.move || escape.rotate)) { // Wait for movement/rotation to be completed
+                writeString_P("2\n");
 				escape.state = IDLE;
+            }
 		break;
 	}
 }
@@ -430,21 +432,17 @@ void behaviour_ext(void) {
                 // Toggle Auto-Mode
                 isAuto = !isAuto;
 
-                /*
-                if (isAuto) {
-                    writeString_P("##auto##\n");
-                } else {
-                    writeString_P("##manual##\n");
-                }*/
-
+                if (isAuto)
+                    writeString_P("2\n");
                 // initial cruise settings
                 cruise.speed_left = CRUISE_SPEED_FWD;
                 cruise.speed_right = CRUISE_SPEED_FWD;
                 cruise.dir = FWD;
                 cruise.rotate = false;
-                cruise.move = true;
-                cruise.move_value = 1;
+                cruise.move = false;
+                cruise.move_value = 0;
                 cruise.state = MOVE; 
+
                 break;
         }
     }
@@ -478,15 +476,6 @@ void behaviour_idle(void) {
     }
 }
 
-void change_speed(void) {
-    uint8_t c;
-
-    if (getBufferLength()) {
-        for (int i = 0; i < 3; i++) {
-            c += readChar();
-        }
-    }
-}
 
 void behaviourController(void) {
 
@@ -500,24 +489,18 @@ void behaviourController(void) {
             moveCommand(&escape);
         else if(avoid.state != IDLE) // Priority - 2
             moveCommand(&avoid);
-        else if(cruise.state != IDLE) { // Priority - 1
-            writeString_P("2\n");
-            moveCommand(&cruise); 
-        }
-        else                     // Lowest priority - 0
-            moveCommand(&STOP);  // Default command - do nothing! 
-                                // In the current implementation this never 
-                                // happens.
+        else if (cruise.state != IDLE) // Priority - 1
+            moveCommand(&cruise);
     } 
 
     // Always check for external commands
     behaviour_ext();
     behaviour_idle();
 
-    if (ext.state != IDLE) {
+    if (ext.state != IDLE)
         moveCommand(&ext);
-    }
 
+    // Send an appropriate stop command
     if (mleft_dist >= last_dist && isMoving) {
         isMoving = false;
         writeString_P("5\n");

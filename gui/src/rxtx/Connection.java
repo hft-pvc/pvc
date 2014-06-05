@@ -101,7 +101,7 @@ public class Connection {
 		try {
 			outputStream = serialPort.getOutputStream();
 		} catch (IOException e) {
-			System.out.println("Keinen Zugriff auf OutputStream");
+			System.out.println("Cannot access OutputStream");
 		}
 
 		try {
@@ -120,9 +120,9 @@ public class Connection {
 		serialPort.notifyOnDataAvailable(true);
 		serialPort.notifyOnOutputEmpty(true);
 		try {
-			serialPort
-					.setSerialPortParams(baudrate, dataBits, stopBits, parity);
+			serialPort.setSerialPortParams(baudrate, dataBits, stopBits, parity);
 		} catch (UnsupportedCommOperationException e) {
+			e.printStackTrace();
 			System.out.println("Couldn't set port parameters");
 		}
 
@@ -157,20 +157,8 @@ public class Connection {
 			e.printStackTrace();
 		}
 
-		
-/*		if (logTxt.equals("##move##")) {
-			this.curMove = Move.FWD;
-			setDraw(true);
-		} else if (logTxt.equals("##rotate##")) {
-			setDraw(false);
-		} else if (logTxt.equals("##stop##")) {
-			setDraw(false);
-			this.curMove = Move.STOP;
-		} else {*/
-		
 			switch (new Integer(logTxt)) {
 			case 0:
-				System.out.println("LEFT !!!!!!!!!!!!!!!!!!!!!");
 				this.curMove = Move.LEFT;
 				setDraw(true);
 				break;

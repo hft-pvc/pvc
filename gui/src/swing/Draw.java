@@ -40,14 +40,11 @@ public class Draw extends JPanel implements Runnable {
 	private int positionY = 350;
 	private Direction dir = Direction.UP;
 	private Connection con = Connection.getInstance();
-	private Move lastMove = Move.FWD;
 	private static final long serialVersionUID = 625962120099128913L;
 	private Vector<Point> points = new Vector<Point>();
 
 	public Draw() throws IOException {
-		// Muss so sein sonst kann man keine Bild verschieben!!!
 		this.setLayout(null);
-		//
 		roboter = new JLabel();
 		InputStream is = getClass().getResourceAsStream(pngPfad);
 		robot = ImageIO.read(is);
@@ -185,7 +182,7 @@ public class Draw extends JPanel implements Runnable {
 				if (con.getDraw()) {
 					draw(con.getCurMove());
 				}
-				Thread.sleep(500);
+				Thread.sleep(250);
 			} catch (InterruptedException e) {
 				System.err.println(e.getMessage());
 			}
