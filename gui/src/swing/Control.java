@@ -6,7 +6,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -15,10 +14,12 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JSlider;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
-import rxtx.Connection;
 import net.miginfocom.swing.MigLayout;
-
+import rxtx.Connection;
 /**
  * 
  * 
@@ -28,9 +29,9 @@ import net.miginfocom.swing.MigLayout;
 public class Control extends JPanel implements MouseListener {
 	Connection connect;
 	JButton stop;
-
-	Control(Connection connect) throws IOException {
-		this.connect = connect;
+	public boolean draw = false;
+	Control() throws IOException {
+		this.connect = Connection.getInstance();
 		this.setLayout(new MigLayout("",
 				"[44px][24px][][44px][][24px][][][][grow][]",
 				"[44px][][][grow]"));
@@ -77,10 +78,10 @@ public class Control extends JPanel implements MouseListener {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				System.err.println("RP6 go!");
-				Connection.writeData("0");
+				Connection.writeData("/s");
 			}
 		});
-		this.add(start, "cell 0 0, hmax 25px, alignx left,aligny bottom");
+		this.add(start, "cell 0 0, hmax 25px, wmin 93px, alignx left,aligny bottom");
 
 		// Button stop
 		JButton stop = new JButton();
@@ -95,7 +96,7 @@ public class Control extends JPanel implements MouseListener {
 				Connection.writeData("1");
 			}
 		});
-		this.add(stop, "cell 0 1, hmax 25px,  alignx left,aligny bottom");
+		this.add(stop, "cell 0 1, hmax 25px, wmin 93px,   alignx left,aligny bottom");
 		
 		// Button automatic mode
 		JButton automatic = new JButton();
@@ -110,8 +111,32 @@ public class Control extends JPanel implements MouseListener {
 				Connection.writeData("6");
 			}
 		});
-		this.add(automatic, "cell 0 2, hmax 25px,  alignx left,aligny top");
-
+		this.add(automatic, "cell 0 2, hmax 25px, wmin 93px,  alignx left,aligny top");
+		
+		
+		//Speed Slider 0 = min wert 100 = max wert 50 = default wert
+		JLabel speedL = new JLabel();
+		speedL.setName("Speed:");
+		speedL.setText("  Speed:");
+		this.add(speedL, "cell 0 3 ,  alignx left,aligny top");
+		final JLabel getOut = new JLabel("50");
+		this.add(getOut, "cell 0 3");
+		final JSlider speed = new JSlider(0, 100, 50 );
+		speed.setName("speed");
+		speed.setPaintTicks( true );
+		speed.setSnapToTicks(true);
+		speed.setMajorTickSpacing(20);
+		this.add(speed, "cell 0 4,  alignx left,aligny bottom, grow");
+		
+		speed.addChangeListener(new ChangeListener() {
+			
+			@Override
+			public void stateChanged(ChangeEvent arg0) {
+				getOut.setText(""+speed.getValue());
+				connect.writeData("101");
+				connect.writeData(new Integer(speed.getValue()).toString());
+			}
+		});
 	}
 
 	@Override
@@ -148,7 +173,6 @@ public class Control extends JPanel implements MouseListener {
 			System.err.println("RP6 drive backwards!");
 			connect.writeData("3");
 		}
-
 	}
 
 	@Override

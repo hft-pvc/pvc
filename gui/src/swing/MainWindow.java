@@ -38,6 +38,7 @@ public class MainWindow {
 	Dimension screen ;
 	public static void main(String[] args) {
 		
+		
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
@@ -66,14 +67,14 @@ public class MainWindow {
 	 * @throws IOException 
 	 */
 	private void initialize() throws IOException {
-		Dimension min = new Dimension(950, 715);
+		Dimension min = new Dimension(950, 755);
 		frame = new JFrame();
-		frame.getContentPane().setBackground(Color.BLACK);
+//		frame.getContentPane().setBackground(Color.BLACK);
 		frame.setMinimumSize(min);
 		frame.getContentPane().setEnabled(false);
 		frame.setBounds(100, 100, 450, 300);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setTitle("PVC Projekt: SLAM by Juhulian Rilli, Tobias Fleischer, Jan Hoeppner, Felix Van Gunsteren");
+		frame.setTitle("PVC Projekt: SLAM by Julian Rilli, Tobias Fleischer, Jan Hoeppner, Felix Van Gunsteren");
 		frame.getContentPane().setLayout(new MigLayout("", "[grow][grow][]", "[grow][grow]"));
 		
 		/**
@@ -83,16 +84,16 @@ public class MainWindow {
 		Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
 		Dimension sizeConsole = new Dimension(screen.width,screen.height);
 		Draw drawMap = new Draw();
-		drawMap.setBackground(Color.WHITE);
-		//"cell 0 0 2 1,grow"
+		drawMap.setBackground(Color.WHITE);//"cell 0 0 2 1,grow"
 		JScrollPane scrollPaneDraw = new JScrollPane(drawMap, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
 														  ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		frame.getContentPane().add(scrollPaneDraw, "hmin 500px,cell 0 0 3 1,push,grow");
 		frame.setVisible(true);
+		
 
-/*		PrintStream standardOut = System.out;
-		PrintStream errOut = System.err;*/
-
+		
+		new Thread(drawMap).start();
+		
 		/**
 		 * ConsolArea
 		 */
@@ -105,18 +106,18 @@ public class MainWindow {
 		
 		//consolTextArea.setBackground(Color.BLACK);
 		JScrollPane scrollPaneConsole = new JScrollPane (consolTextArea,
-	            ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
-	            ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+		ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		frame.getContentPane().add(scrollPaneConsole, "hmax 300px ,cell 0 1 2 1, push ,grow");
 
 
 		/**
 		 * ControlArea
 		 */
-		Control control = new Control(connect);
-		control.setBackground(Color.BLACK);
+		Control control = new Control();
+//		control.setBackground(Color.BLACK);
 		//control.setBackground(UIManager.getColor("Button.background"));
-		frame.getContentPane().add(control, "wmax 220px,hmax 200px,  cell 2 1");
+		frame.getContentPane().add(control, "wmax 230px,hmax 200px,  cell 2 1");
 
 
 		/**
@@ -132,13 +133,13 @@ public class MainWindow {
 		mntmNew.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseReleased(MouseEvent arg0) {
-				String portName = (String)JOptionPane.showInputDialog(null, "Please specify COM-Port:","Chose COM-Port", JOptionPane.QUESTION_MESSAGE,null,null,"/dev/rfcomm0");
-				connect = new Connection(portName, printStream);
-				thread = new Thread(connect);
-				thread.start();
+				String portName = (String)JOptionPane.showInputDialog(null, "Please specify COM-Port:","Chose COM-Port", JOptionPane.QUESTION_MESSAGE,null,null,"/dev/ttyUSB0");
+				connect = Connection.getInstance();
+				connect.init(portName, printStream);
 			}
 		});
 		mnNewMenu.add(mntmNew);
+		
 		
 		JMenuItem mntmClos = new JMenuItem("Close Connection");
 		mntmClos.addMouseListener(new MouseAdapter() {

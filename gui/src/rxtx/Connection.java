@@ -1,6 +1,5 @@
 package rxtx;
 
-
 import gnu.io.CommPortIdentifier;
 import gnu.io.PortInUseException;
 import gnu.io.SerialPort;
@@ -8,59 +7,62 @@ import gnu.io.SerialPortEvent;
 import gnu.io.SerialPortEventListener;
 import gnu.io.UnsupportedCommOperationException;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.io.Reader;
-import java.util.ArrayList;
-//import java.io.OutputStream;
 import java.util.Enumeration;
-import java.util.List;
-import java.util.Properties;
 import java.util.TooManyListenersException;
 
+import swing.Draw.Move;
 
-public class Connection implements Runnable {
-	String os ;
-	CommPortIdentifier serialPortId;
-	Enumeration enumComm;
-	SerialPort serialPort;
-	static OutputStream outputStream;
-	InputStream inputStream;
-	StringBuilder inputStringBuilder = new StringBuilder();
-	Boolean serialPortOpen = false;
-	PrintStream ps;
-	int baudrate = 38400;
-	int dataBits = SerialPort.DATABITS_8;
-	int stopBits = SerialPort.STOPBITS_1;
-	int parity = SerialPort.PARITY_NONE;
-	String portName = "/dev/ttyUSB0";
-	 public static final int TIME_OUT = 2000;
+public class Connection {
 
-	public Connection(String port, PrintStream ps)
-	{
-		this.portName = port;
-		this.ps = ps;
-		System.setOut(ps);
-		System.setErr(ps);
-		
+	String os;
+	boolean draw = false;
+	private boolean drawNeverCalledBefore = true;
+	
+	private Enumeration enumComm;
+	private CommPortIdentifier serialPortId;
+	private SerialPort serialPort;
+	private static OutputStream outputStream;
+	private InputStream inputStream;
+	private Boolean serialPortOpen = false;
+
+	private int baudrate = 38400;
+	private int dataBits = SerialPort.DATABITS_8;
+	private int stopBits = SerialPort.STOPBITS_1;
+	private int parity = SerialPort.PARITY_NONE;
+	private String portName = "/dev/ttyUSB0";
+	
+	public static final int TIME_OUT = 2000;
+
+	final static int NEW_LINE_ASCII = 10;
+	
+	private String logTxt = new String();
+	
+	private Move curMove = Move.IDLE;
+
+	private static Connection INSTANCE = new Connection();
+
+	public static Connection getInstance() {
+		return INSTANCE;
 	}
 
-	public void run()
-	{
-		if (!openSerialPort(portName)){
+	private Connection() {
+	}
+
+	public void init(String port, PrintStream ps) {
+		this.portName = port;
+		if (!openSerialPort(portName)) {
 			return;
 		}
-		openSerialPort(portName);
-		while(true){
-			
-		}
+
+		System.setOut(ps);
+		System.setErr(ps);
 	}
 
-	boolean openSerialPort(String portName)
-	{
+	boolean openSerialPort(String portName) {
 		Boolean foundPort = false;
 		if (serialPortOpen != false) {
 			System.out.println("Serialport already open");
@@ -68,7 +70,7 @@ public class Connection implements Runnable {
 		}
 		System.out.println("Open serialport using " + portName);
 		enumComm = CommPortIdentifier.getPortIdentifiers();
-		while(enumComm.hasMoreElements()) {
+		while (enumComm.hasMoreElements()) {
 			serialPortId = (CommPortIdentifier) enumComm.nextElement();
 			if (portName.contentEquals(serialPortId.getName())) {
 				foundPort = true;
@@ -82,8 +84,16 @@ public class Connection implements Runnable {
 		}
 
 		try {
-			serialPort = (SerialPort) serialPortId.open("Open and send", TIME_OUT);
+			serialPort = (SerialPort) serialPortId.open("Open and send",
+					TIME_OUT);
 			serialPort.setRTS(false);
+
+			serialPort.disableReceiveTimeout();
+			try {
+				serialPort.enableReceiveThreshold(1);
+			} catch (UnsupportedCommOperationException e) {
+				e.printStackTrace();
+			}
 		} catch (PortInUseException e) {
 			System.out.println("Port in use");
 		}
@@ -91,7 +101,7 @@ public class Connection implements Runnable {
 		try {
 			outputStream = serialPort.getOutputStream();
 		} catch (IOException e) {
-			System.out.println("Keinen Zugriff auf OutputStream");
+			System.out.println("Cannot access OutputStream");
 		}
 
 		try {
@@ -104,23 +114,23 @@ public class Connection implements Runnable {
 			serialPort.addEventListener(new serialPortEventListener());
 		} catch (TooManyListenersException e) {
 			System.out.println("TooManyListenersException");
-			
+
 		}
 
 		serialPort.notifyOnDataAvailable(true);
 		serialPort.notifyOnOutputEmpty(true);
 		try {
 			serialPort.setSerialPortParams(baudrate, dataBits, stopBits, parity);
-		} catch(UnsupportedCommOperationException e) {
+		} catch (UnsupportedCommOperationException e) {
 			System.out.println("Couldn't set port parameters");
 		}
 
+		
 		serialPortOpen = true;
 		return true;
 	}
 
-	public void closeSerialPort()
-	{
+	public void closeSerialPort() {
 		if (serialPortOpen) {
 			System.out.println("Closing Serialport");
 			serialPort.close();
@@ -129,30 +139,88 @@ public class Connection implements Runnable {
 			System.out.println("Serialport already closed");
 		}
 	}
-	
+
 	void serialPortDataAvailable() {
+
+		String str = new String();
+		
 		try {
+			byte singleData = (byte)inputStream.read();
 			
-			byte[] data = new byte[500];
-			int num;
-			while(inputStream.available() > 0) {
-				num = inputStream.read(data, 0, data.length);
-				System.out.println( new String(data, 0, num));
+			if (singleData != NEW_LINE_ASCII) {
+				str = new String(new  byte[] {singleData});
+				logTxt += str;
+			} else {
+				logTxt = new String();
 			}
 		} catch (IOException e) {
-			System.out.println("Error while receiving data");
+			e.printStackTrace();
+		}
+
+		switch (new Integer(logTxt)) {
+		case 0:
+			this.curMove = Move.LEFT;
+			setDraw(true);
+			System.out.println(" to turn left");
+			break;
+		case 1:
+			this.curMove = Move.RIGHT;
+			setDraw(true);
+			System.out.println(" take a right!");
+			break;
+		case 2:
+			this.curMove = Move.FWD;
+			setDraw(true);
+			System.out.println("I drive FWD");
+			break;
+		case 3:
+			this.curMove = Move.BWD;
+			setDraw(true);
+			System.out.println("I drive BWD");
+			break;
+		case 4:
+			this.curMove = Move.IDLE;
+			break;
+		case 5:
+			setDraw(false);
+			System.out.println("I stop");
+		default:
+			break;
 		}
 
 	}
 	
 	public static synchronized void writeData(String data) {
-		 //System.out.println("Sent: " + data);
-		 try {
-			 outputStream.write(data.getBytes());
-		 } catch (Exception e) {
-		 System.out.println("could not write to port");
-		 }
-		 }
+		try {
+			outputStream.write(data.getBytes());
+		} catch (Exception e) {
+			System.out.println("could not write to port");
+		}
+	}
+
+	public Move getCurMove() {
+		return curMove;
+	}
+
+	public void setCurMove(Move curMove) {
+		this.curMove = curMove;
+	}
+
+	public void setDraw(boolean draw) {
+		this.draw = draw;
+	}
+
+	public boolean getDraw() {
+		return draw;
+	}
+
+	public boolean getDrawNeverCalledBefore() {
+		return drawNeverCalledBefore;
+	}
+
+	public void setDrawNeverCalledBefore(boolean drawNeverCalledBefore) {
+		this.drawNeverCalledBefore = drawNeverCalledBefore;
+	}
 
 	class serialPortEventListener implements SerialPortEventListener {
 		public void serialEvent(SerialPortEvent event) {
@@ -186,5 +254,5 @@ public class Connection implements Runnable {
 			default:
 			}
 		}
-	}	
+	}
 }
