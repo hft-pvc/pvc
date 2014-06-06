@@ -56,7 +56,6 @@ public class Draw extends JPanel implements Runnable {
 	public void draw(Move curMove) throws InterruptedException {
 		// if only at the first run true
 		if (con.getDrawNeverCalledBefore()) {
-			System.out.println("EIN MAL");
 			con.setDrawNeverCalledBefore(false);
 			if (curMove == Move.FWD) {
 				drawUp();
@@ -122,7 +121,6 @@ public class Draw extends JPanel implements Runnable {
 				con.setDraw(false);
 			}
 		}
-
 	}
 
 	private void drawLeft() {

@@ -7,10 +7,8 @@ import gnu.io.SerialPortEvent;
 import gnu.io.SerialPortEventListener;
 import gnu.io.UnsupportedCommOperationException;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.Enumeration;
@@ -127,6 +125,7 @@ public class Connection {
 			System.out.println("Couldn't set port parameters");
 		}
 
+		
 		serialPortOpen = true;
 		return true;
 	}
@@ -166,28 +165,27 @@ public class Connection {
 			break;
 		case 1:
 			this.curMove = Move.RIGHT;
-				setDraw(true);
+			setDraw(true);
 			System.out.println(" take a right!");
 			break;
 		case 2:
 			this.curMove = Move.FWD;
-				setDraw(true);
+			setDraw(true);
 			System.out.println("I drive FWD");
 			break;
 		case 3:
 			this.curMove = Move.BWD;
-				setDraw(true);
+			setDraw(true);
 			System.out.println("I drive BWD");
-				break;
-			case 4:
-				this.curMove = Move.IDLE;
-				break;
-			case 5:
-				setDraw(false);
+			break;
+		case 4:
+			this.curMove = Move.IDLE;
+			break;
+		case 5:
+			setDraw(false);
 			System.out.println("I stop");
-			default:
-				break;
-			}
+		default:
+			break;
 		}
 
 	}

@@ -505,6 +505,7 @@ void behaviourController(void) {
         isMoving = false;
         writeString_P("5\n");
     }
+
 }
 
 int main(void) {
